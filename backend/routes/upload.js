@@ -1,7 +1,7 @@
 //routes/upload.js
 const express = require('express');
 const { uploadCover, uploadPage } = require('../config/cloudinary');
-const Manga = require('./models/Manga');
+const Manga = require('../models/manga');
 const router = express.Router();
 
 // Upload ảnh bìa

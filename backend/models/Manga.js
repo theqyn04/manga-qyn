@@ -1,4 +1,4 @@
-//Models/Manga.js
+//Models/manga.js
 const mongoose = require('mongoose');
 
 const pageSchema = new mongoose.Schema({
@@ -34,7 +34,7 @@ const mangaSchema = new mongoose.Schema({
 });
 
 // Cập nhật updatedAt trước khi lưu
-comicSchema.pre('save', function (next) {
+mangaSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
