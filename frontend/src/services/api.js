@@ -1,38 +1,37 @@
 // File: src/services/api.js
 import axios from 'axios';
 
-// Tạo instance của axios với baseURL trỏ đến backend
 const API = axios.create({
     baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
     timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
-// Thêm interceptor để xử lý request
+// Request interceptor
 API.interceptors.request.use(
     (config) => {
-        // Lấy token từ localStorage nếu có
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Thêm interceptor để xử lý response
+// Response interceptor
 API.interceptors.response.use(
     (response) => {
+        // Kiểm tra cấu trúc response và chuẩn hóa
+        if (response.data && response.data.mangas) {
+            return {
+                ...response,
+                data: response.data.mangas // Chuẩn hóa cho các API trả về mảng manga
+            };
+        }
         return response;
     },
     (error) => {
         if (error.response?.status === 401) {
-            // Xử lý khi unauthorized (token hết hạn, không hợp lệ)
             localStorage.removeItem('token');
             window.location.href = '/login';
         }
@@ -40,19 +39,87 @@ API.interceptors.response.use(
     }
 );
 
-// Hàm utility để lấy optimized image URL từ Cloudinary
+// Manga API functions
+export const mangaAPI = {
+    // Lấy danh sách manga với phân trang và filter
+    getMangas: (params = {}) => API.get('/mangas', { params }),
+
+    // Lấy thông tin chi tiết manga
+    getMangaById: (id) => API.get(`/mangas/${id}`),
+
+    // Lấy manga theo category
+    getMangasByCategory: (category, params = {}) =>
+        API.get(`/mangas/category/${category}`, { params }),
+
+    // Lấy manga mới cập nhật
+    getLatestUpdates: (limit = 10) =>
+        API.get('/mangas/latest/updates', { params: { limit } }),
+
+    // Lấy manga phổ biến
+    getPopularMangas: (limit = 10) =>
+        API.get('/mangas/popular', { params: { limit } }),
+
+    // Lấy tất cả categories
+    getCategories: () => API.get('/mangas/categories/all'),
+
+    // Tìm kiếm manga
+    searchMangas: (keyword, params = {}) =>
+        API.get(`/mangas/search/${encodeURIComponent(keyword)}`, { params }),
+
+    // Lấy chapters của manga
+    getChapters: (mangaId) => API.get(`/mangas/${mangaId}/chapters`),
+
+    // Lấy thông tin chapter
+    getChapter: (mangaId, chapterId) =>
+        API.get(`/mangas/${mangaId}/chapters/${chapterId}`),
+
+    // Lấy trang cụ thể
+    getPage: (mangaId, chapterId, pageNumber) =>
+        API.get(`/mangas/${mangaId}/chapters/${chapterId}/pages/${pageNumber}`),
+
+    // Tạo manga mới
+    createManga: (mangaData) => API.post('/mangas', mangaData),
+
+    // Cập nhật manga
+    updateManga: (id, mangaData) => API.put(`/mangas/${id}`, mangaData),
+
+    // Xóa manga
+    deleteManga: (id) => API.delete(`/mangas/${id}`),
+
+    // Thêm chapter
+    addChapter: (mangaId, chapterData) =>
+        API.post(`/mangas/${mangaId}/chapters`, chapterData),
+
+    // Cập nhật chapter
+    updateChapter: (mangaId, chapterId, chapterData) =>
+        API.put(`/mangas/${mangaId}/chapters/${chapterId}`, chapterData),
+
+    // Xóa chapter
+    deleteChapter: (mangaId, chapterId) =>
+        API.delete(`/mangas/${mangaId}/chapters/${chapterId}`),
+
+    // Thêm page
+    addPage: (mangaId, chapterId, pageData) =>
+        API.post(`/mangas/${mangaId}/chapters/${chapterId}/pages`, pageData),
+
+    // Xóa page
+    deletePage: (mangaId, chapterId, pageId) =>
+        API.delete(`/mangas/${mangaId}/chapters/${chapterId}/pages/${pageId}`),
+};
+
+// Utility function for Cloudinary images
 export const getCloudinaryImage = (url, options = {}) => {
     if (!url || !url.includes('cloudinary.com')) return url;
 
-    const defaultOptions = {
+    const config = {
         width: 300,
         height: 400,
         crop: 'fill',
         quality: 'auto',
-        format: 'auto'
+        format: 'auto',
+        ...options
     };
 
-    const config = { ...defaultOptions, ...options };
     const baseUrl = url.split('/upload/')[0];
     const imagePath = url.split('/upload/')[1];
 
@@ -61,62 +128,6 @@ export const getCloudinaryImage = (url, options = {}) => {
         .join(',');
 
     return `${baseUrl}/upload/${transformations}/${imagePath}`;
-};
-
-// API functions cho manga
-export const mangaAPI = {
-    // Lấy danh sách manga
-    getMangas: (params) => API.get('/mangas', { params }),
-
-    // Lấy thông tin chi tiết manga
-    getMangaById: (id) => API.get(`/mangas/${id}`),
-
-    // Tìm kiếm manga
-    searchMangas: (query) => API.get('/mangas/search', { params: { q: query } }),
-
-    // Lấy chapters của manga
-    getChapters: (mangaId) => API.get(`/mangas/${mangaId}/chapters`),
-
-    // Lấy chapter content
-    getChapterContent: (mangaId, chapterId) => API.get(`/mangas/${mangaId}/chapters/${chapterId}`),
-
-    // Upload manga
-    createManga: (formData) => API.post('/mangas', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-
-    // Upload chapter
-    addChapter: (mangaId, formData) => API.post(`/mangas/${mangaId}/chapters`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-};
-
-// API functions cho upload
-export const uploadAPI = {
-    // Upload ảnh bìa
-    uploadCover: (formData) => API.post('/upload/cover', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-
-    // Upload trang truyện
-    uploadPage: (formData) => API.post('/upload/page', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-
-    // Xóa ảnh
-    deleteImage: (publicId) => API.delete(`/upload/${publicId}`),
-};
-
-// API functions cho authentication
-export const authAPI = {
-    // Đăng nhập
-    login: (credentials) => API.post('/auth/login', credentials),
-
-    // Đăng ký
-    register: (userData) => API.post('/auth/register', userData),
-
-    // Lấy thông tin user
-    getProfile: () => API.get('/auth/profile'),
 };
 
 export default API;

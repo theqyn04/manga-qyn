@@ -1,28 +1,31 @@
-// File: src/components/MangaList/MangaList.js
-import React, { useCallback } from 'react';
+// File: src/components/MangaList/MangaList.js (thêm debug)
+import React from 'react';
 import MangaCard from '../MangaCard/MangaCard';
-import { mangaAPI } from '../../services/api';
-import useApi from '../../hooks/useApi';
-import './MangaList.css';
 import Loading from '../Loading/Loading';
+import './MangaList.css';
 
-const MangaList = ({ title, endpoint, params = {} }) => {
-    // Tạo apiCall function với useCallback
-    const fetchMangas = useCallback(() => {
-        if (endpoint) {
-            return mangaAPI.getMangas({ ...params, endpoint });
-        } else {
-            return mangaAPI.getMangas(params);
-        }
-    }, [endpoint, JSON.stringify(params)]);
-
-    const { data: mangaData, loading, error } = useApi(fetchMangas, []);
+const MangaList = ({
+    title,
+    mangas = [],
+    loading = false,
+    error = null,
+    emptyMessage = "No mangas found"
+}) => {
+    // Debug: log dữ liệu nhận được
+    React.useEffect(() => {
+        console.log(`MangaList "${title}":`, {
+            mangasCount: mangas.length,
+            mangas: mangas.slice(0, 3), // Chỉ log 3 phần tử đầu
+            loading,
+            error
+        });
+    }, [title, mangas, loading, error]);
 
     if (loading) {
         return (
             <section className="manga-list-section">
                 <h2 className="section-title">{title}</h2>
-                <Loading message="Loading manga..." />
+                <Loading message="Loading mangas..." />
             </section>
         );
     }
@@ -31,7 +34,7 @@ const MangaList = ({ title, endpoint, params = {} }) => {
         return (
             <section className="manga-list-section">
                 <h2 className="section-title">{title}</h2>
-                <div className="error">Error: {error}</div>
+                <div className="error-message">{error}</div>
             </section>
         );
     }
@@ -39,11 +42,15 @@ const MangaList = ({ title, endpoint, params = {} }) => {
     return (
         <section className="manga-list-section">
             <h2 className="section-title">{title}</h2>
-            <div className="manga-list">
-                {mangaData && mangaData.map(manga => (
-                    <MangaCard key={manga._id || manga.id} manga={manga} />
-                ))}
-            </div>
+            {mangas.length === 0 ? (
+                <div className="empty-message">{emptyMessage}</div>
+            ) : (
+                <div className="manga-list">
+                    {mangas.map(manga => (
+                        <MangaCard key={manga._id || manga.id} manga={manga} />
+                    ))}
+                </div>
+            )}
         </section>
     );
 };

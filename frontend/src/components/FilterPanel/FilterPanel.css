@@ -1,0 +1,73 @@
+/* File: src/components/FilterPanel/FilterPanel.css */
+.filter-panel {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #2c2c2c;
+    margin-bottom: 20px;
+}
+
+.filter-panel h3 {
+    color: #e63946;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #2c2c2c;
+    padding-bottom: 10px;
+}
+
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #e1e1e1;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #2c2c2c;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    color: #e1e1e1;
+    font-size: 14px;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #e63946;
+    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+}
+
+.filter-group input::placeholder {
+    color: #a1a1a1;
+}
+
+.clear-filters-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #2c2c2c;
+    border: 1px solid #e63946;
+    color: #e1e1e1;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.clear-filters-btn:hover {
+    background-color: #e63946;
+}
+
+@media (max-width: 768px) {
+    .filter-panel {
+        padding: 15px;
+    }
+}

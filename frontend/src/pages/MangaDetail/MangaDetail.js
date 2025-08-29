@@ -1,18 +1,21 @@
 // File: src/pages/MangaDetail/MangaDetail.js
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { mangaAPI, getCloudinaryImage } from '../../services/api';
+import Loading from '../../components/Loading/Loading';
 import './MangaDetail.css';
 
 const MangaDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [manga, setManga] = useState(null);
     const [chapters, setChapters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedChapter, setSelectedChapter] = useState(null);
 
     useEffect(() => {
+        console.log('Fetching manga details for ID:', id);
+
         const fetchMangaDetails = async () => {
             try {
                 setLoading(true);
@@ -20,14 +23,22 @@ const MangaDetail = () => {
 
                 // Fetch manga details
                 const mangaResponse = await mangaAPI.getMangaById(id);
+                console.log('Manga detail response:', mangaResponse.data);
                 setManga(mangaResponse.data);
 
                 // Fetch chapters
-                const chaptersResponse = await mangaAPI.getChapters(id);
-                setChapters(chaptersResponse.data);
+                try {
+                    const chaptersResponse = await mangaAPI.getChapters(id);
+                    console.log('Chapters response:', chaptersResponse.data);
+                    setChapters(chaptersResponse.data.chapters || []);
+                } catch (chaptersError) {
+                    console.warn('Could not fetch chapters:', chaptersError);
+                    setChapters(mangaResponse.data.chapters || []);
+                }
+
             } catch (err) {
-                setError(err.message);
                 console.error('Error fetching manga details:', err);
+                setError(err.response?.data?.message || err.message || 'Failed to load manga');
             } finally {
                 setLoading(false);
             }
@@ -38,7 +49,10 @@ const MangaDetail = () => {
         }
     }, [id]);
 
-    // Hàm xử lý lỗi ảnh
+    const handleReadChapter = (chapterId) => {
+        navigate(`/manga/${id}/chapter/${chapterId}`);
+    };
+
     const handleImageError = (e) => {
         e.target.src = 'https://via.placeholder.com/300x400/1a1a1a/666666?text=No+Image';
     };
@@ -46,7 +60,7 @@ const MangaDetail = () => {
     if (loading) {
         return (
             <div className="manga-detail">
-                <div className="loading">Loading manga details...</div>
+                <Loading message="Loading manga details..." />
             </div>
         );
     }
@@ -54,7 +68,11 @@ const MangaDetail = () => {
     if (error) {
         return (
             <div className="manga-detail">
-                <div className="error">Error: {error}</div>
+                <div className="error-message">
+                    <h2>Error Loading Manga</h2>
+                    <p>{error}</p>
+                    <button onClick={() => window.location.reload()}>Retry</button>
+                </div>
             </div>
         );
     }
@@ -62,7 +80,7 @@ const MangaDetail = () => {
     if (!manga) {
         return (
             <div className="manga-detail">
-                <div className="error">Manga not found</div>
+                <div className="error-message">Manga not found</div>
             </div>
         );
     }
@@ -80,68 +98,49 @@ const MangaDetail = () => {
                 <div className="manga-info">
                     <h1>{manga.title}</h1>
                     <p className="manga-author">by {manga.author || 'Unknown Author'}</p>
+
                     <div className="manga-categories">
                         {manga.categories && manga.categories.map(category => (
                             <span key={category} className="category-tag">{category}</span>
                         ))}
                     </div>
-                    <p className="manga-description">{manga.description}</p>
+
+                    <p className="manga-description">{manga.description || 'No description available.'}</p>
+
                     <div className="manga-meta">
                         <span>Rating: {manga.rating || 'N/A'} ★</span>
                         <span>Status: {manga.status || 'ongoing'}</span>
                         <span>Views: {manga.views || 0}</span>
                         <span>Followers: {manga.followers || 0}</span>
+                        <span>Chapters: {chapters.length}</span>
                     </div>
+
                     <button className="follow-btn">Follow</button>
                 </div>
             </div>
 
             <div className="chapters-section">
                 <h2>Chapters ({chapters.length})</h2>
-                <div className="chapters-list">
-                    {chapters.length === 0 ? (
-                        <div className="no-chapters">No chapters available</div>
-                    ) : (
-                        chapters.map(chapter => (
+
+                {chapters.length === 0 ? (
+                    <div className="no-chapters">No chapters available yet.</div>
+                ) : (
+                    <div className="chapters-list">
+                        {chapters.map(chapter => (
                             <div
-                                key={chapter._id}
+                                key={chapter._id || chapter.id}
                                 className="chapter-item"
-                                onClick={() => setSelectedChapter(chapter)}
+                                onClick={() => handleReadChapter(chapter._id || chapter.id)}
                             >
                                 <span>Chapter {chapter.chapterNumber}</span>
                                 <span>{chapter.title}</span>
-                                <span>{new Date(chapter.uploadDate).toLocaleDateString()}</span>
-                                <span>{chapter.views} views</span>
+                                <span>{new Date(chapter.uploadDate || chapter.createdAt).toLocaleDateString()}</span>
+                                <span>{chapter.views || 0} views</span>
                             </div>
-                        ))
-                    )}
-                </div>
-            </div>
-
-            {selectedChapter && (
-                <div className="chapter-modal">
-                    <div className="modal-content">
-                        <button className="close-btn" onClick={() => setSelectedChapter(null)}>×</button>
-                        <h2>Chapter {selectedChapter.chapterNumber}: {selectedChapter.title}</h2>
-                        <div className="chapter-pages">
-                            {selectedChapter.pages && selectedChapter.pages.length > 0 ? (
-                                selectedChapter.pages
-                                    .sort((a, b) => a.pageNumber - b.pageNumber)
-                                    .map(page => (
-                                        <img
-                                            key={page._id}
-                                            src={getCloudinaryImage(page.imageUrl, { quality: 'auto', format: 'auto' })}
-                                            alt={`Page ${page.pageNumber}`}
-                                            className="page-image"
-                                        />
-                                    ))
-                            ) : (
-                                <p>No pages available for this chapter</p>
-                            )}
-                        </div>
+                        ))}
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };

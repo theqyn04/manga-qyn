@@ -1,15 +1,21 @@
 // File: src/components/MangaCard/MangaCard.js
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MangaCard.css';
 
 const MangaCard = ({ manga }) => {
-    // Hàm xử lý lỗi ảnh
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate(`/manga/${manga._id}`);
+    };
+
     const handleImageError = (e) => {
         e.target.src = 'https://via.placeholder.com/200x300/1a1a1a/666666?text=No+Image';
     };
 
     return (
-        <div className="manga-card">
+        <div className="manga-card" onClick={handleClick}>
             <div className="manga-cover">
                 <img
                     src={manga.coverImage || manga.cover}
