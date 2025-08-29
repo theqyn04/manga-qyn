@@ -1,0 +1,23 @@
+/* File: src/pages/SearchPage/SearchPage.css */
+.search-page {
+    padding: 20px 0;
+}
+
+.search-page h1 {
+    margin-bottom: 20px;
+    color: #e1e1e1;
+    font-size: 24px;
+}
+
+.search-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #a1a1a1;
+    font-size: 18px;
+}

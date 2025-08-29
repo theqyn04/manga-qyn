@@ -1,9 +1,10 @@
+// File: src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header/Header';
-import Home from './pages/Home/Home';
+import MangaList from './components/MangaList/MangaList';
+import SearchPage from './pages/SearchPage/SearchPage';
 import MangaDetail from './pages/MangaDetail/MangaDetail';
-import Reader from './pages/Reader/Reader';
 import './App.css';
 
 function App() {
@@ -13,9 +14,15 @@ function App() {
                 <Header />
                 <main className="main-content">
                     <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route path="/" element={
+                            <>
+                                <MangaList title="Trending Now" endpoint="trending" />
+                                <MangaList title="Recently Updated" endpoint="recent" />
+                                <MangaList title="New Manga" endpoint="new" />
+                            </>
+                        } />
+                        <Route path="/search" element={<SearchPage />} />
                         <Route path="/manga/:id" element={<MangaDetail />} />
-                        <Route path="/read/:id/chapter/:chapterId" element={<Reader />} />
                     </Routes>
                 </main>
             </div>

@@ -1,6 +1,51 @@
-.manga-detail {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+/* Thêm vào file: src/pages/MangaDetail/MangaDetail.css */
+.manga-author {
+    color: #a1a1a1;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.manga-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.category-tag {
+    background-color: #e63946;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.page-image {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.no-chapters {
     text-align: center;
+    padding: 20px;
+    color: #a1a1a1;
+}
+
+.chapter-item {
+    display: grid;
+    grid-template-columns: 100px 1fr 120px 80px;
+    padding: 15px;
+    background-color: #1a1a1a;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+@media (max-width: 768px) {
+    .chapter-item {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
 }
