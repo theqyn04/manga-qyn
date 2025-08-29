@@ -1,4 +1,4 @@
-//Models/manga.js
+//Models/Manga.js
 const mongoose = require('mongoose');
 
 const pageSchema = new mongoose.Schema({

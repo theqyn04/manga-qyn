@@ -7,7 +7,8 @@ import SearchPage from './pages/SearchPage/SearchPage';
 import MangaDetail from './pages/MangaDetail/MangaDetail';
 import './App.css';
 
-function App() {
+// Tạo các params mặc định với useMemo để tránh re-render
+const App = () => {
     return (
         <Router>
             <div className="App">
@@ -16,9 +17,21 @@ function App() {
                     <Routes>
                         <Route path="/" element={
                             <>
-                                <MangaList title="Trending Now" endpoint="trending" />
-                                <MangaList title="Recently Updated" endpoint="recent" />
-                                <MangaList title="New Manga" endpoint="new" />
+                                <MangaList
+                                    title="Trending Now"
+                                    endpoint="trending"
+                                    params={{ limit: 10, sort: '-views' }}
+                                />
+                                <MangaList
+                                    title="Recently Updated"
+                                    endpoint="recent"
+                                    params={{ limit: 10, sort: '-updatedAt' }}
+                                />
+                                <MangaList
+                                    title="New Manga"
+                                    endpoint="new"
+                                    params={{ limit: 10, sort: '-createdAt' }}
+                                />
                             </>
                         } />
                         <Route path="/search" element={<SearchPage />} />
@@ -28,6 +41,6 @@ function App() {
             </div>
         </Router>
     );
-}
+};
 
 export default App;
