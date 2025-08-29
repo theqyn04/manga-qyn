@@ -8,10 +8,6 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
-
 # production
 /build
 
@@ -36,7 +32,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # Yarn 
 .yarn/*
@@ -46,10 +41,6 @@ next-env.d.ts
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-
-# Serwist
-public/sw*
-public/swe-worker*
 
 # IDE
 .vscode/
@@ -86,6 +77,9 @@ pids/
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
+
+# next.js build output
+.next
 
 # nuxt.js build output
 .nuxt
