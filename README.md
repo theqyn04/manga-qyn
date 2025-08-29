@@ -1,15 +1,11 @@
 # MangaQyn
 
-## Chức năng
+## Functions
 
-- Theo dõi truyện
-- Bình luận: Theo truyện, theo chương (trang)
-- Lượt đọc (toàn thời gian, tháng, tuần,...)
-- Ủng hộ truyện bản quyền
-
-## Development (English)
-
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+- Follow the manga
+- Comment: commet follow the chapter, the manga or page
+- View (all the time, month, week,...)
+- Support copyrighted manga
 
 ### Getting Started
 
