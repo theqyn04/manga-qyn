@@ -16,13 +16,12 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 First, set up enviroment variables
 
 ```bash
-mkdir backend && cd backend
+cd backend
 npm init -y
 npm install express mongoose cors dotenv bcryptjs jsonwebtoken
 npm install -D nodemon
 
 cd ..
-npx create-react-app frontend
 cd frontend
 npm install axios react-router-dom
 ```
