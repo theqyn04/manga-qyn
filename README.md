@@ -1,7 +1,7 @@
 # MangaQyn
 
 <p align="center">
-  <img src=".frontend/src/assets/MangaQynLogo.png" />
+  <img src="./frontend/src/assets/MangaQynLogo.png" />
 </p>
 
 ## Functions
