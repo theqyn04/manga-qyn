@@ -14,6 +14,9 @@ const SearchPage = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        // Thêm class khi trang search được mở
+        document.body.classList.add('search-page-active');
+
         const searchMangas = async () => {
             if (!query) {
                 setResults([]);
@@ -34,12 +37,19 @@ const SearchPage = () => {
         };
 
         searchMangas();
+
+        // Cleanup function
+        return () => {
+            document.body.classList.remove('search-page-active');
+        };
     }, [query]);
 
     if (loading) {
         return (
             <div className="search-page">
-                <h1>Search Results for "{query}"</h1>
+                <div className="search-header">
+                    <h1>Search Results for "{query}"</h1>
+                </div>
                 <div className="loading">Searching...</div>
             </div>
         );
@@ -48,7 +58,9 @@ const SearchPage = () => {
     if (error) {
         return (
             <div className="search-page">
-                <h1>Search Results for "{query}"</h1>
+                <div className="search-header">
+                    <h1>Search Results for "{query}"</h1>
+                </div>
                 <div className="error">Error: {error}</div>
             </div>
         );
@@ -56,10 +68,22 @@ const SearchPage = () => {
 
     return (
         <div className="search-page">
-            <h1>Search Results for "{query}"</h1>
+            <div className="search-header">
+                <h1>Search Results for "{query}"</h1>
+                <p className="results-count">{results.length} results found</p>
+            </div>
+
             {results.length === 0 ? (
                 <div className="no-results">
                     {query ? `No results found for "${query}"` : 'Please enter a search query'}
+                    <div className="search-tips">
+                        <h3>Search Tips:</h3>
+                        <ul>
+                            <li>Check your spelling</li>
+                            <li>Try more general keywords</li>
+                            <li>Try different keywords</li>
+                        </ul>
+                    </div>
                 </div>
             ) : (
                 <div className="search-results">

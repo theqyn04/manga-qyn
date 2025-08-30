@@ -304,6 +304,66 @@ router.get('/:mangaId/chapters/:chapterId', async (req, res) => {
     }
 });
 
+// API đặc biệt: Tạo chapter mới với nhiều pages từ Cloudinary URLs
+router.post('/:id/chapters/upload', async (req, res) => {
+    try {
+        const manga = await Manga.findById(req.params.id);
+        if (!manga) {
+            return res.status(404).json({ message: 'Không tìm thấy truyện' });
+        }
+
+        // Kiểm tra chapter number đã tồn tại chưa
+        const existingChapter = manga.chapters.find(
+            chap => chap.chapterNumber === req.body.chapterNumber
+        );
+
+        if (existingChapter) {
+            return res.status(400).json({ message: 'Chapter number đã tồn tại' });
+        }
+
+        const newChapter = {
+            title: req.body.title,
+            chapterNumber: req.body.chapterNumber,
+            pages: req.body.pages || [] // Mảng các page với imageUrl từ Cloudinary
+        };
+
+        manga.chapters.push(newChapter);
+        await manga.save();
+
+        res.status(201).json(newChapter);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// API đặc biệt: Thêm nhiều pages vào chapter từ Cloudinary URLs
+router.post('/:mangaId/chapters/:chapterId/pages/upload', async (req, res) => {
+    try {
+        const manga = await Manga.findById(req.params.mangaId);
+        if (!manga) {
+            return res.status(404).json({ message: 'Không tìm thấy truyện' });
+        }
+
+        const chapter = manga.chapters.id(req.params.chapterId);
+        if (!chapter) {
+            return res.status(404).json({ message: 'Không tìm thấy chapter' });
+        }
+
+        // Thêm nhiều pages cùng lúc
+        const newPages = req.body.pages.map(page => ({
+            imageUrl: page.imageUrl,
+            pageNumber: page.pageNumber
+        }));
+
+        chapter.pages.push(...newPages);
+        await manga.save();
+
+        res.status(201).json(newPages);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
 // Lấy trang cụ thể của chapter
 router.get('/:mangaId/chapters/:chapterId/pages/:pageNumber', async (req, res) => {
     try {

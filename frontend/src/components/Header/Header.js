@@ -1,5 +1,5 @@
 // File: src/components/Header/Header.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mangaAPI } from '../../services/api';
 import './Header.css';
@@ -9,13 +9,16 @@ const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
     const navigate = useNavigate();
+    const searchRef = useRef(null);
 
     const handleSearch = async (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
             navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
             setShowSuggestions(false);
+            setIsSearchFocused(false);
         }
     };
 
@@ -26,7 +29,7 @@ const Header = () => {
         if (value.length > 2) {
             try {
                 const response = await mangaAPI.searchMangas(value);
-                setSuggestions(response.data.slice(0, 5)); // Giới hạn 5 kết quả
+                setSuggestions(response.data.slice(0, 5));
                 setShowSuggestions(true);
             } catch (error) {
                 console.error('Error fetching search suggestions:', error);
@@ -42,59 +45,115 @@ const Header = () => {
         navigate(`/manga/${mangaId}`);
         setSearchQuery('');
         setShowSuggestions(false);
+        setIsSearchFocused(false);
     };
 
+    const handleSearchFocus = () => {
+        setIsSearchFocused(true);
+        if (searchQuery.length > 2) {
+            setShowSuggestions(true);
+        }
+    };
+
+    const handleSearchBlur = () => {
+        // Delay hiding suggestions to allow for clicks
+        setTimeout(() => {
+            setShowSuggestions(false);
+            setIsSearchFocused(false);
+        }, 200);
+    };
+
+    // Close search overlay when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+                setIsSearchFocused(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // Add/remove blur class to body based on search focus
+    useEffect(() => {
+        if (isSearchFocused) {
+            document.body.classList.add('search-focused');
+        } else {
+            document.body.classList.remove('search-focused');
+        }
+
+        return () => {
+            document.body.classList.remove('search-focused');
+        };
+    }, [isSearchFocused]);
+
     return (
-        <header className="header">
-            <div className="header-container">
-                <div className="logo" onClick={() => navigate('/')}>
-                    <img src={logo} alt="MangaQYN Logo" className="logo-image" />
-                    <h1>MANGA-QYN</h1>
-                </div>
+        <>
+            <header className="header">
+                <div className="header-container">
+                    <div className="logo" onClick={() => navigate('/')}>
+                        <img src={logo} alt="MangaQYN Logo" className="logo-image" />
+                        <h1>MANGA-QYN</h1>
+                    </div>
 
-                <nav className="nav">
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#browse">Browse</a></li>
-                        <li><a href="#updates">Updates</a></li>
-                        <li><a href="#community">Community</a></li>
-                    </ul>
-                </nav>
+                    <nav className="nav">
+                        <ul>
+                            <li><a href="#home">Home</a></li>
+                            <li><a href="#browse">Browse</a></li>
+                            <li><a href="#updates">Updates</a></li>
+                            <li><a href="#community">Community</a></li>
+                        </ul>
+                    </nav>
 
-                <div className="search-container">
-                    <form className="search-form" onSubmit={handleSearch}>
-                        <input
-                            type="text"
-                            placeholder="Search manga..."
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            onFocus={() => searchQuery.length > 2 && setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                        />
-                        <button type="submit">Search</button>
-                    </form>
-                    {showSuggestions && suggestions.length > 0 && (
-                        <div className="suggestions-dropdown">
-                            {suggestions.map(manga => (
-                                <div
-                                    key={manga._id}
-                                    className="suggestion-item"
-                                    onMouseDown={() => handleSuggestionClick(manga._id)}
-                                >
-                                    <img src={manga.cover} alt={manga.title} />
-                                    <span>{manga.title}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                    <div className="search-container" ref={searchRef}>
+                        <form className="search-form" onSubmit={handleSearch}>
+                            <input
+                                type="text"
+                                placeholder="Search manga..."
+                                value={searchQuery}
+                                onChange={handleSearchChange}
+                                onFocus={handleSearchFocus}
+                                onBlur={handleSearchBlur}
+                            />
+                            <button type="submit">
+                                <i className="fas fa-search"></i>
+                            </button>
+                        </form>
+                        {showSuggestions && suggestions.length > 0 && (
+                            <div className="suggestions-dropdown">
+                                {suggestions.map(manga => (
+                                    <div
+                                        key={manga._id}
+                                        className="suggestion-item"
+                                        onMouseDown={() => handleSuggestionClick(manga._id)}
+                                    >
+                                        <img src={manga.coverImage || manga.cover} alt={manga.title} />
+                                        <div className="suggestion-info">
+                                            <span className="suggestion-title">{manga.title}</span>
+                                            <span className="suggestion-author">{manga.author || 'Unknown Author'}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                <div className="user-actions">
-                    <button className="login-btn">Login</button>
-                    <button className="signup-btn">Sign Up</button>
+                    <div className="user-actions">
+                        <button className="login-btn">Login</button>
+                        <button className="signup-btn">Sign Up</button>
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
+
+            {/* Search overlay */}
+            {isSearchFocused && (
+                <div className="search-overlay" onClick={() => setIsSearchFocused(false)} />
+            )}
+        </>
     );
 };
 
