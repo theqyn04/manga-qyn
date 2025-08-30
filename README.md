@@ -1,5 +1,9 @@
 # MangaQyn
 
+<p align="center">
+  <img src="./frontend/src/assets/MangaQynLogo.png" style="width:40%;" />
+</p>
+
 ## Functions
 
 - Follow the manga
