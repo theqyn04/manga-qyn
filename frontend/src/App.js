@@ -7,6 +7,8 @@ import BrowsePage from './pages/BrowsePage/BrowsePage';
 import SearchPage from './pages/SearchPage/SearchPage';
 import MangaDetail from './pages/MangaDetail/MangaDetail';
 import ChapterReader from './pages/ChapterReader/ChapterReader';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
 import './App.css';
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
                         <Route path="/search" element={<SearchPage />} />
                         <Route path="/manga/:id" element={<MangaDetail />} />
                         <Route path="/manga/:mangaId/chapter/:chapterId" element={<ChapterReader />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
                     </Routes>
                 </main>
             </div>

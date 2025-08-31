@@ -1,6 +1,6 @@
-// File: src/components/Header/Header.js
+// src/components/Header/Header.js
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { mangaAPI } from '../../services/api';
 import './Header.css';
 import logo from '../../assets/MangaQynLogo.png';
@@ -149,8 +149,9 @@ const Header = () => {
                     </div>
 
                     <div className="user-actions">
-                        <button className="login-btn">Login</button>
-                        <button className="signup-btn">Sign Up</button>
+                        <Link to="/login" className="login-btn">Đăng Nhập</Link>
+                        <Link to="/register" className="signup-btn">Đăng Ký</Link>
+                        <a href="/api/users/google" className="google-btn">Đăng Nhập bằng Google</a>
                     </div>
                 </div>
             </header>
