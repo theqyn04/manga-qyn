@@ -4,8 +4,9 @@ const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
 
-// Đăng ký user mới
+// Đăng ký user mới (giữ nguyên chức năng đăng ký bằng email/password)
 router.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -51,7 +52,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Đăng nhập
+// Đăng nhập bằng email/password
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -88,6 +89,38 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+// Google OAuth routes
+router.get('/google', passport.authenticate('google', {
+    scope: ['profile', 'email']
+}));
+
+router.get('/google/callback',
+    passport.authenticate('google', { session: false }),
+    async (req, res) => {
+        try {
+            // Tạo JWT token
+            const token = jwt.sign(
+                { userId: req.user._id },
+                process.env.JWT_SECRET,
+                { expiresIn: '7d' }
+            );
+
+            // Redirect hoặc trả về token
+            res.json({
+                message: 'Google login successful',
+                token,
+                user: {
+                    id: req.user._id,
+                    username: req.user.username,
+                    email: req.user.email
+                }
+            });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+);
 
 // Lấy thông tin user
 router.get('/:id', async (req, res) => {
