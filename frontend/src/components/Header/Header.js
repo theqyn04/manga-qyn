@@ -102,10 +102,10 @@ const Header = () => {
 
                     <nav className="nav">
                         <ul>
-                            <li><a href="#home">Home</a></li>
-                            <li><a href="#browse">Browse</a></li>
-                            <li><a href="#updates">Updates</a></li>
-                            <li><a href="#community">Community</a></li>
+                            <li><a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>Home</a></li>
+                            <li><a href="/browse" onClick={(e) => { e.preventDefault(); navigate('/browse'); }}>Browse</a></li>
+                            <li><a href="/updates" onClick={(e) => { e.preventDefault(); navigate('/updates'); }}>Updates</a></li>
+                            <li><a href="/community" onClick={(e) => { e.preventDefault(); navigate('/community'); }}>Community</a></li>
                         </ul>
                     </nav>
 
@@ -131,7 +131,13 @@ const Header = () => {
                                         className="suggestion-item"
                                         onMouseDown={() => handleSuggestionClick(manga._id)}
                                     >
-                                        <img src={manga.coverImage || manga.cover} alt={manga.title} />
+                                        <img
+                                            src={manga.coverImage || manga.cover}
+                                            alt={manga.title}
+                                            onError={(e) => {
+                                                e.target.src = 'https://via.placeholder.com/40x50/1a1a1a/666666?text=No+Image';
+                                            }}
+                                        />
                                         <div className="suggestion-info">
                                             <span className="suggestion-title">{manga.title}</span>
                                             <span className="suggestion-author">{manga.author || 'Unknown Author'}</span>
