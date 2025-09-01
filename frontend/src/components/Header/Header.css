@@ -1,4 +1,4 @@
-/* File: src/components/Header/Header.css */
+/* src/components/Header/Header.css */
 .header {
     background-color: #121212;
     color: white;
@@ -175,6 +175,30 @@
 
 .signup-btn:hover {
     background-color: #d62c3b;
+}
+
+.profile-btn {
+    padding: 8px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+}
+
+.profile-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.profile-icon {
+    height: 24px;
+    width: 24px;
+    object-fit: contain;
 }
 
 /* Search overlay và suggestions */
@@ -376,8 +400,14 @@ body.search-focused .suggestions-dropdown {
     }
 
     .login-btn,
-    .signup-btn {
+    .signup-btn,
+    .profile-btn {
         padding: 6px 12px;
         font-size: 12px;
+    }
+
+    .profile-icon {
+        height: 20px;
+        width: 20px;
     }
 }

@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { mangaAPI } from '../../services/api';
 import './Header.css';
 import logo from '../../assets/MangaQynLogo.png';
+import profileIcon from '../../assets/MangaQynLogo.png'; // Replace with your profile icon path
 
 const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -12,6 +13,13 @@ const Header = () => {
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const navigate = useNavigate();
     const searchRef = useRef(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+
+    // Check login status on component mount
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        setIsLoggedIn(!!token); // Set to true if token exists
+    }, []);
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -149,9 +157,17 @@ const Header = () => {
                     </div>
 
                     <div className="user-actions">
-                        <Link to="/login" className="login-btn">Đăng Nhập</Link>
-                        <Link to="/register" className="signup-btn">Đăng Ký</Link>
-                        <a href="/api/users/google" className="google-btn">Đăng Nhập bằng Google</a>
+                        {!isLoggedIn ? (
+                            <>
+                                <Link to="/login" className="login-btn">Đăng Nhập</Link>
+                                <Link to="/register" className="signup-btn">Đăng Ký</Link>
+                                <a href="/api/users/google" className="google-btn">Đăng Nhập bằng Google</a>
+                            </>
+                        ) : (
+                            <Link to="/profile" className="profile-btn">
+                                <img src={profileIcon} alt="Profile" className="profile-icon" />
+                            </Link>
+                        )}
                     </div>
                 </div>
             </header>
