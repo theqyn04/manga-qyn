@@ -411,3 +411,74 @@ body.search-focused .suggestions-dropdown {
         width: 20px;
     }
 }
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #e1e1e1;
+    transition: opacity 0.3s;
+}
+
+.profile-link:hover {
+    opacity: 0.8;
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e63946;
+}
+
+.username {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.logout-btn {
+    padding: 6px 12px;
+    background: rgba(230, 57, 70, 0.2);
+    border: 1px solid #e63946;
+    color: #e63946;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background: #e63946;
+    color: white;
+}
+
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .user-menu {
+        gap: 8px;
+    }
+
+    .username {
+        display: none;
+    }
+
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+    }
+}

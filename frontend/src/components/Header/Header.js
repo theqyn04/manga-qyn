@@ -5,6 +5,9 @@ import { mangaAPI } from '../../services/api';
 import './Header.css';
 import logo from '../../assets/MangaQynLogo.png';
 import profileIcon from '../../assets/MangaQynLogo.png'; // Replace with your profile icon path
+import AuthModal from '../Auth/AuthModal';
+import { useAuth } from '../../contexts/AuthContext';
+import Loading from '../Loading/Loading';
 
 const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -14,6 +17,8 @@ const Header = () => {
     const navigate = useNavigate();
     const searchRef = useRef(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const { user, logout } = useAuth();
 
     // Check login status on component mount
     useEffect(() => {
@@ -163,27 +168,43 @@ const Header = () => {
                     </div>
 
                     <div className="user-actions">
-                        {!isLoggedIn ? (
-                            <>
-                                <Link to="/login" className="login-btn">Đăng Nhập</Link>
-                                <Link to="/register" className="signup-btn">Đăng Ký</Link>
-                                <a href="/api/users/google" className="google-btn">Đăng Nhập bằng Google</a>
-                            </>
+                        {user ? (
+                            <div className="user-menu">
+                                <Link to={`/profile/${user.id}`} className="profile-link">
+                                    <img
+                                        src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}&background=e63946&color=fff`}
+                                        alt={user.username}
+                                        className="user-avatar"
+                                    />
+                                    <span className="username">{user.username}</span>
+                                </Link>
+                                <button onClick={logout} className="logout-btn">Logout</button>
+                            </div>
                         ) : (
                             <>
-                                <Link to="/profile" className="profile-btn">
-                                    <img src={profileIcon} alt="Profile" className="profile-icon" />
-                                </Link>
-                                <button onClick={handleLogout} className="logout-btn">
-                                    Đăng Xuất
+                                <button
+                                    className="login-btn"
+                                    onClick={() => setIsAuthModalOpen(true)}
+                                >
+                                    Login
+                                </button>
+                                <button
+                                    className="signup-btn"
+                                    onClick={() => setIsAuthModalOpen(true)}
+                                >
+                                    Sign Up
                                 </button>
                             </>
                         )}
                     </div>
                 </div>
             </header>
-
-            {/* Search overlay */}
+            
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+            />
+            
             {isSearchFocused && (
                 <div className="search-overlay" onClick={() => setIsSearchFocused(false)} />
             )}

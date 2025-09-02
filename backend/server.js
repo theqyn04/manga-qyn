@@ -11,9 +11,14 @@ const app = express();
 // Middleware
 app.use(cors({
     origin: true, // Cho phép tất cả origins
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 app.use(express.json());
+
+// Xử lý preflight requests
+app.options('*', cors());
 
 // Passport configuration
 passport.use(new GoogleStrategy({

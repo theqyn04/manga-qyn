@@ -4,6 +4,7 @@ import axios from 'axios';
 const API = axios.create({
     baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
     timeout: 10000,
+    withCredentials: true,
 });
 
 // Request interceptor
@@ -13,28 +14,34 @@ API.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        // Đảm bảo headers luôn được set
+        config.headers['Content-Type'] = 'application/json';
+        config.headers['Accept'] = 'application/json';
+
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        console.error('Request error:', error);
+        return Promise.reject(error);
+    }
 );
+
 
 // Response interceptor
 API.interceptors.response.use(
     (response) => {
-        // Kiểm tra cấu trúc response và chuẩn hóa
-        if (response.data && response.data.mangas) {
-            return {
-                ...response,
-                data: response.data.mangas // Chuẩn hóa cho các API trả về mảng manga
-            };
-        }
         return response;
     },
     (error) => {
+        console.error('Response error:', error.response?.data || error.message);
+
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
+            delete API.defaults.headers.Authorization;
             window.location.href = '/login';
         }
+
         return Promise.reject(error);
     }
 );
@@ -125,6 +132,8 @@ export const userAPI = {
 
     // Lấy activity của user
     getUserActivity: (userId) => API.get(`/users/${userId}/activity`),
+
+    getProfile: () => API.get('/users/profile'),
 };
 
 

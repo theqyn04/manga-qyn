@@ -1,4 +1,4 @@
-// File: src/pages/UserProfile/UserProfile.jss
+// File: src/pages/UserProfile/UserProfile.js
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { userAPI } from '../../services/api';
