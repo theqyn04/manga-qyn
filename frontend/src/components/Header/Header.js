@@ -21,6 +21,12 @@ const Header = () => {
         setIsLoggedIn(!!token); // Set to true if token exists
     }, []);
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setIsLoggedIn(false); // Update login status
+        navigate('/'); // Redirect to homepage
+    };
+
     const handleSearch = async (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
@@ -164,9 +170,14 @@ const Header = () => {
                                 <a href="/api/users/google" className="google-btn">Đăng Nhập bằng Google</a>
                             </>
                         ) : (
-                            <Link to="/profile" className="profile-btn">
-                                <img src={profileIcon} alt="Profile" className="profile-icon" />
-                            </Link>
+                            <>
+                                <Link to="/profile" className="profile-btn">
+                                    <img src={profileIcon} alt="Profile" className="profile-icon" />
+                                </Link>
+                                <button onClick={handleLogout} className="logout-btn">
+                                    Đăng Xuất
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>

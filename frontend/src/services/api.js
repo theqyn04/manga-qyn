@@ -107,6 +107,27 @@ export const mangaAPI = {
         API.delete(`/mangas/${mangaId}/chapters/${chapterId}/pages/${pageId}`),
 };
 
+export const userAPI = {
+    // Lấy thông tin user
+    getUserProfile: (userId) => API.get(`/users/${userId}`),
+
+    // Cập nhật thông tin user
+    updateProfile: (userId, data) => API.put(`/users/${userId}`, data),
+
+    // Đăng ký
+    register: (userData) => API.post('/users/register', userData),
+
+    // Đăng nhập
+    login: (credentials) => API.post('/users/login', credentials),
+
+    // Lấy manga của user
+    getUserManga: (userId) => API.get(`/users/${userId}/manga`),
+
+    // Lấy activity của user
+    getUserActivity: (userId) => API.get(`/users/${userId}/activity`),
+};
+
+
 // Utility function for Cloudinary images
 export const getCloudinaryImage = (url, options = {}) => {
     if (!url || !url.includes('cloudinary.com')) return url;

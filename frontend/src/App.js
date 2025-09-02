@@ -9,6 +9,7 @@ import MangaDetail from './pages/MangaDetail/MangaDetail';
 import ChapterReader from './pages/ChapterReader/ChapterReader';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
+import UserProfile from './pages/UserProfile/UserProfile';
 import './App.css';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
                         <Route path="/manga/:mangaId/chapter/:chapterId" element={<ChapterReader />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
+                        <Route path="/profile/:id" element={<UserProfile />} />
                     </Routes>
                 </main>
             </div>
