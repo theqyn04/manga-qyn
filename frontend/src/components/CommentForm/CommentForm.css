@@ -1,0 +1,74 @@
+/* File: src/components/CommentForm/CommentForm.css */
+.comment-form {
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group textarea {
+    width: 100%;
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #e63946;
+}
+
+.form-options {
+    margin-bottom: 12px;
+}
+
+.spoiler-checkbox {
+    color: #a1a1a1;
+    font-size: 14px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.cancel-btn,
+.submit-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.cancel-btn {
+    background: #444;
+    color: #fff;
+}
+
+.cancel-btn:hover {
+    background: #555;
+}
+
+.submit-btn {
+    background: #e63946;
+    color: #fff;
+}
+
+.submit-btn:hover {
+    background: #d62c3b;
+}
+
+.submit-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+}

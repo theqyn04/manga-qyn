@@ -1,0 +1,122 @@
+/* File: src/components/CommentItem/CommentItem.css */
+.comment-item {
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+}
+
+.comment-item.spoiler {
+    border-left: 4px solid #e63946;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-user-info {
+    flex-grow: 1;
+}
+
+.comment-username {
+    font-weight: 600;
+    color: #fff;
+}
+
+.comment-date {
+    color: #a1a1a1;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.comment-actions button {
+    background: none;
+    border: none;
+    color: #e63946;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.comment-actions .delete-btn {
+    color: #ff4d4f;
+}
+
+.comment-actions button:disabled {
+    color: #666;
+    cursor: not-allowed;
+}
+
+.spoiler-warning {
+    background: rgba(230, 57, 70, 0.2);
+    color: #e63946;
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.comment-content p {
+    margin: 0;
+    color: #fff;
+    font-size: 14px;
+}
+
+.comment-edit {
+    margin-top: 12px;
+}
+
+.edit-textarea {
+    width: 100%;
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.edit-textarea:focus {
+    outline: none;
+    border-color: #e63946;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.edit-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.edit-actions button:first-child {
+    background: #e63946;
+    color: #fff;
+}
+
+.edit-actions button:last-child {
+    background: #444;
+    color: #fff;
+}

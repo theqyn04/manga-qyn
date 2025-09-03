@@ -27,7 +27,6 @@ API.interceptors.request.use(
     }
 );
 
-
 // Response interceptor
 API.interceptors.response.use(
     (response) => {
@@ -136,6 +135,13 @@ export const userAPI = {
     getProfile: () => API.get('/users/profile'),
 };
 
+// Comments API
+export const commentsAPI = {
+    getComments: (params) => API.get('/comments', { params }), // Fixed: Use API instead of api
+    createComment: (data) => API.post('/comments', data), // Fixed: Use API instead of api
+    updateComment: (id, data) => API.put(`/comments/${id}`, data), // Fixed: Use API instead of api
+    deleteComment: (id) => API.delete(`/comments/${id}`), // Fixed: Use API instead of api
+};
 
 // Utility function for Cloudinary images
 export const getCloudinaryImage = (url, options = {}) => {
@@ -147,7 +153,7 @@ export const getCloudinaryImage = (url, options = {}) => {
         crop: 'fill',
         quality: 'auto',
         format: 'auto',
-        ...options
+        ...options,
     };
 
     const baseUrl = url.split('/upload/')[0];

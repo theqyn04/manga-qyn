@@ -1,18 +1,24 @@
-// File: src/pages/MangaDetail/MangaDetail.js (cập nhật thêm)
+// File: src/pages/MangaDetail/MangaDetail.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mangaAPI, getCloudinaryImage } from '../../services/api';
+import { mangaAPI, commentsAPI, getCloudinaryImage } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Loading/Loading';
+import CommentSection from '../../components/CommentSection/CommentSection';
 import './MangaDetail.css';
 
 const MangaDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [manga, setManga] = useState(null);
     const [chapters, setChapters] = useState([]);
+    const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [commentsLoading, setCommentsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isFollowing, setIsFollowing] = useState(false);
+    const [activeTab, setActiveTab] = useState('chapters'); // 'chapters' or 'comments'
 
     useEffect(() => {
         const fetchMangaDetails = async () => {
@@ -30,13 +36,28 @@ const MangaDetail = () => {
                     setChapters(mangaResponse.data.chapters || []);
                 }
 
-                // Kiểm tra trạng thái follow (giả lập)
+                // Load comments
+                await fetchComments();
+
+                // Kiểm tra trạng thái follow
                 setIsFollowing(localStorage.getItem(`follow_${id}`) === 'true');
 
             } catch (err) {
                 setError(err.response?.data?.message || err.message || 'Failed to load manga');
             } finally {
                 setLoading(false);
+            }
+        };
+
+        const fetchComments = async () => {
+            try {
+                setCommentsLoading(true);
+                const response = await commentsAPI.getComments({ mangaId: id });
+                setComments(response.data.comments || []);
+            } catch (error) {
+                console.error('Error fetching comments:', error);
+            } finally {
+                setCommentsLoading(false);
             }
         };
 
@@ -62,6 +83,14 @@ const MangaDetail = () => {
                 btn.style.transform = '';
             }, 150);
         }
+    };
+
+    const handleCommentAdded = (newComment) => {
+        setComments(prev => [newComment, ...prev]);
+    };
+
+    const handleCommentDeleted = (commentId) => {
+        setComments(prev => prev.filter(comment => comment._id !== commentId));
     };
 
     const handleImageError = (e) => {
@@ -133,6 +162,7 @@ const MangaDetail = () => {
                         <span>Views: {formatNumber(manga.views)}</span>
                         <span>Followers: {formatNumber(manga.followers)}</span>
                         <span>Chapters: {formatNumber(chapters.length)}</span>
+                        <span>Comments: {formatNumber(comments.length)}</span>
                     </div>
 
                     <button
@@ -149,32 +179,64 @@ const MangaDetail = () => {
                 </div>
             </div>
 
-            <div className="chapters-section">
-                <h2>Chapters ({formatNumber(chapters.length)})</h2>
-
-                {chapters.length === 0 ? (
-                    <div className="no-chapters">
-                        No chapters available yet. Check back later!
-                    </div>
-                ) : (
-                    <div className="chapters-list">
-                        {chapters.map(chapter => (
-                            <div
-                                key={chapter._id || chapter.id}
-                                className="chapter-item"
-                                onClick={() => handleReadChapter(chapter._id || chapter.id)}
-                            >
-                                <span>Chapter {chapter.chapterNumber}</span>
-                                <span>{chapter.title || `Chapter ${chapter.chapterNumber}`}</span>
-                                <span>
-                                    {new Date(chapter.uploadDate || chapter.createdAt).toLocaleDateString('vi-VN')}
-                                </span>
-                                <span>{formatNumber(chapter.views)} views</span>
-                            </div>
-                        ))}
-                    </div>
-                )}
+            {/* Tab Navigation */}
+            <div className="manga-tabs">
+                <button
+                    className={`tab-btn ${activeTab === 'chapters' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('chapters')}
+                >
+                    Chapters ({formatNumber(chapters.length)})
+                </button>
+                <button
+                    className={`tab-btn ${activeTab === 'comments' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('comments')}
+                >
+                    Comments ({formatNumber(comments.length)})
+                </button>
             </div>
+
+            {/* Chapters Tab */}
+            {activeTab === 'chapters' && (
+                <div className="chapters-section">
+                    <h2>Chapters ({formatNumber(chapters.length)})</h2>
+
+                    {chapters.length === 0 ? (
+                        <div className="no-chapters">
+                            No chapters available yet. Check back later!
+                        </div>
+                    ) : (
+                        <div className="chapters-list">
+                            {chapters.map(chapter => (
+                                <div
+                                    key={chapter._id || chapter.id}
+                                    className="chapter-item"
+                                    onClick={() => handleReadChapter(chapter._id || chapter.id)}
+                                >
+                                    <span>Chapter {chapter.chapterNumber}</span>
+                                    <span>{chapter.title || `Chapter ${chapter.chapterNumber}`}</span>
+                                    <span>
+                                        {new Date(chapter.uploadDate || chapter.createdAt).toLocaleDateString('vi-VN')}
+                                    </span>
+                                    <span>{formatNumber(chapter.views)} views</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Comments Tab */}
+            {activeTab === 'comments' && (
+                <div className="comments-section">
+                    <CommentSection
+                        mangaId={id}
+                        comments={comments}
+                        loading={commentsLoading}
+                        onCommentAdded={handleCommentAdded}
+                        onCommentDeleted={handleCommentDeleted}
+                    />
+                </div>
+            )}
         </div>
     );
 };
