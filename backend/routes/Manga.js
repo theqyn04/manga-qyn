@@ -1,7 +1,9 @@
 //routes/Manga.js
 const express = require('express');
 const router = express.Router();
-const Manga = require('../models/manga');
+const Manga = require('../models/Manga');
+const NotificationService = require('../services/notificationService');
+const auth = require('../middleware/auth');
 
 // Lấy danh sách truyện với phân trang, tìm kiếm và lọc
 router.get('/', async (req, res) => {
@@ -475,6 +477,10 @@ router.post('/:id/chapters', async (req, res) => {
 
         manga.chapters.push(newChapter);
         await manga.save();
+
+        // Send notifications for new chapter
+        newChapter = manga.chapters[manga.chapters.length - 1];
+        await NotificationService.notifyNewChapter(req.params.id, newChapter);
 
         res.status(201).json(newChapter);
     } catch (error) {

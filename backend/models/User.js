@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String }, // Password is optional for Google auth
-    googleId: { type: String, unique: true, sparse: true }, // Added for Google OAuth
+    password: { type: String },
+    googleId: { type: String, unique: true, sparse: true },
     avatar: { type: String, default: '' },
     bookmarks: [{
         mangaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Manga' },
@@ -18,10 +18,25 @@ const userSchema = new mongoose.Schema({
         readAt: { type: Date, default: Date.now }
     }],
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    notificationPreferences: {
+        email: {
+            newChapters: { type: Boolean, default: true },
+            mangaUpdates: { type: Boolean, default: true },
+            comments: { type: Boolean, default: true }
+        },
+        push: {
+            newChapters: { type: Boolean, default: true },
+            mangaUpdates: { type: Boolean, default: true }
+        }
+    },
+    lastNotificationCheck: {
+        type: Date,
+        default: Date.now
+    }
 });
 
-// Mã hóa mật khẩu trước khi lưu (chỉ áp dụng nếu có password)
+// Mã hóa mật khẩu trước khi lưu
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password') || !this.password) return next();
     this.password = await bcrypt.hash(this.password, 12);
@@ -33,4 +48,5 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
     return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-module.exports = mongoose.model('User', userSchema);
+// Check if model already exists before defining it
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);

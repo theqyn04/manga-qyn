@@ -39,4 +39,5 @@ mangaSchema.pre('save', function (next) {
     next();
 });
 
-module.exports = mongoose.model('Manga', mangaSchema);
+// Check if model already exists before defining it
+module.exports = mongoose.models.Manga || mongoose.model('Manga', mangaSchema);

@@ -143,6 +143,23 @@ export const commentsAPI = {
     deleteComment: (id) => API.delete(`/comments/${id}`), // Fixed: Use API instead of api
 };
 
+export const followAPI = {
+    getFollows: () => API.get('/follows/my-follows'),
+    follow: (mangaId) => API.post(`/follows/${mangaId}`),
+    unfollow: (mangaId) => API.delete(`/follows/${mangaId}`),
+    getFollowStatus: (mangaId) => API.get(`/follows/${mangaId}/status`),
+    updateNotifications: (mangaId, enabled) =>
+        API.put(`/follows/${mangaId}/notifications`, { enabled })
+};
+
+export const notificationAPI = {
+    getNotifications: (params) => API.get('/notifications', { params }),
+    markAsRead: (id) => API.put(`/notifications/${id}/read`),
+    markAllAsRead: () => API.put('/notifications/read-all'),
+    deleteNotification: (id) => API.delete(`/notifications/${id}`),
+    getStats: () => API.get('/notifications/stats')
+};
+
 // Utility function for Cloudinary images
 export const getCloudinaryImage = (url, options = {}) => {
     if (!url || !url.includes('cloudinary.com')) return url;

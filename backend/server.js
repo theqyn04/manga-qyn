@@ -6,7 +6,9 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 require('dotenv').config();
-const User = require('./models/User');
+
+// Import models using the index file
+const { User } = require('./models');
 
 const app = express();
 
@@ -24,7 +26,7 @@ app.options('*', cors());
 
 // ==================== PASSPORT CONFIGURATION ====================
 
-// JWT Strategy (QUAN TRỌNG - các routes require cái này)
+// JWT Strategy
 const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: process.env.JWT_SECRET || 'your-fallback-secret-key'
@@ -84,6 +86,8 @@ const uploadRoutes = require('./routes/upload');
 const userRoutes = require('./routes/user');
 const reviewsRoutes = require('./routes/reviews');
 const commentsRoutes = require('./routes/comments');
+const followsRoutes = require('./routes/follows');
+const notificationsRoutes = require('./routes/notifications');
 
 // Use routes
 app.use('/api/mangas', mangaRoutes);
@@ -91,6 +95,8 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/comments', commentsRoutes);
+app.use('/api/follows', followsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
