@@ -33,7 +33,40 @@ const userSchema = new mongoose.Schema({
     lastNotificationCheck: {
         type: Date,
         default: Date.now
-    }
+    },
+
+    // Profile enhancements
+    profile: {
+        bio: { type: String, maxlength: 500 },
+        location: String,
+        website: String,
+        socialLinks: {
+            twitter: String,
+            instagram: String,
+            discord: String
+        },
+        birthDate: Date
+    },
+    stats: {
+        mangaAdded: { type: Number, default: 0 },
+        reviewsWritten: { type: Number, default: 0 },
+        commentsMade: { type: Number, default: 0 },
+        followersCount: { type: Number, default: 0 },
+        followingCount: { type: Number, default: 0 },
+        reputation: { type: Number, default: 0 }
+    },
+    preferences: {
+        privacy: {
+            profile: { type: String, enum: ['public', 'private', 'friends'], default: 'public' },
+            activity: { type: String, enum: ['public', 'private', 'friends'], default: 'public' }
+        },
+        theme: { type: String, enum: ['light', 'dark', 'auto'], default: 'auto' }
+    },
+    badges: [{
+        name: String,
+        description: String,
+        earnedAt: { type: Date, default: Date.now }
+    }],
 });
 
 // Mã hóa mật khẩu trước khi lưu

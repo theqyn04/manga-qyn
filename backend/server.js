@@ -88,6 +88,10 @@ const reviewsRoutes = require('./routes/reviews');
 const commentsRoutes = require('./routes/comments');
 const followsRoutes = require('./routes/follows');
 const notificationsRoutes = require('./routes/notifications');
+const userRelationshipsRoutes = require('./routes/userRelationships');
+const activitiesRoutes = require('./routes/activities');
+const messagesRoutes = require('./routes/messages');
+const forumRoutes = require('./routes/forum');
 
 // Use routes
 app.use('/api/mangas', mangaRoutes);
@@ -97,6 +101,10 @@ app.use('/api/reviews', reviewsRoutes);
 app.use('/api/comments', commentsRoutes);
 app.use('/api/follows', followsRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/relationships', userRelationshipsRoutes);
+app.use('/api/activities', activitiesRoutes);
+app.use('/api/messages', messagesRoutes);
+app.use('/api/forum', forumRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
