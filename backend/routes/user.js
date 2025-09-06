@@ -69,8 +69,7 @@ router.post('/login', async (req, res) => {
 
         console.log('Looking for user with email:', email);
 
-        // Tìm user bằng email
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
             console.log('❌ User not found for email:', email);
