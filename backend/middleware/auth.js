@@ -1,6 +1,15 @@
-// middleware/auth.js
 const passport = require('passport');
 
-const auth = passport.authenticate('jwt', { session: false });
+const auth = passport.authenticate('jwt', { session: false, failWithError: true });
 
-module.exports = auth;
+// Error handling wrapper
+const authMiddleware = (req, res, next) => {
+    auth(req, res, (err) => {
+        if (err) {
+            return res.status(401).json({ message: 'Unauthorized', error: err.message });
+        }
+        next();
+    });
+};
+
+module.exports = authMiddleware;

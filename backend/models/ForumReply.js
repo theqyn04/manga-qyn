@@ -35,6 +35,32 @@ const forumReplySchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    // Moderation fields
+    isHidden: {
+        type: Boolean,
+        default: false
+    },
+    hiddenReason: String,
+    hiddenBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    hiddenAt: Date,
+    flags: [{
+        flaggedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        reason: String,
+        flaggedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    flagCount: {
+        type: Number,
+        default: 0
     }
 });
 

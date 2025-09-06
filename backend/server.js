@@ -92,6 +92,12 @@ const userRelationshipsRoutes = require('./routes/userRelationships');
 const activitiesRoutes = require('./routes/activities');
 const messagesRoutes = require('./routes/messages');
 const forumRoutes = require('./routes/forum');
+// Import admin routes
+const adminMangaRoutes = require('./routes/admin/manga');
+const adminUserRoutes = require('./routes/admin/users');
+const adminReportRoutes = require('./routes/admin/reports');
+const adminAnalyticsRoutes = require('./routes/admin/analytics');
+const adminModerationRoutes = require('./routes/admin/moderation');
 
 // Use routes
 app.use('/api/mangas', mangaRoutes);
@@ -105,6 +111,12 @@ app.use('/api/relationships', userRelationshipsRoutes);
 app.use('/api/activities', activitiesRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/forum', forumRoutes);
+// Use admin routes with /api/admin prefix
+app.use('/api/admin', adminMangaRoutes);
+app.use('/api/admin', adminUserRoutes);
+app.use('/api/admin', adminReportRoutes);
+app.use('/api/admin', adminAnalyticsRoutes);
+app.use('/api/admin', adminModerationRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

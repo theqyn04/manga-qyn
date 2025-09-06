@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String },
+    password: { type: String }, // Password is optional for Google auth
     googleId: { type: String, unique: true, sparse: true },
     avatar: { type: String, default: '' },
     bookmarks: [{
@@ -34,51 +34,32 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-
-    // Profile enhancements
-    profile: {
-        bio: { type: String, maxlength: 500 },
-        location: String,
-        website: String,
-        socialLinks: {
-            twitter: String,
-            instagram: String,
-            discord: String
-        },
-        birthDate: Date
-    },
-    stats: {
-        mangaAdded: { type: Number, default: 0 },
-        reviewsWritten: { type: Number, default: 0 },
-        commentsMade: { type: Number, default: 0 },
-        followersCount: { type: Number, default: 0 },
-        followingCount: { type: Number, default: 0 },
-        reputation: { type: Number, default: 0 }
-    },
-    preferences: {
-        privacy: {
-            profile: { type: String, enum: ['public', 'private', 'friends'], default: 'public' },
-            activity: { type: String, enum: ['public', 'private', 'friends'], default: 'public' }
-        },
-        theme: { type: String, enum: ['light', 'dark', 'auto'], default: 'auto' }
-    },
-    badges: [{
-        name: String,
-        description: String,
-        earnedAt: { type: Date, default: Date.now }
-    }],
+    // Add these fields for admin functionality
+    isBanned: { type: Boolean, default: false },
+    banReason: { type: String },
+    banExpiresAt: { type: Date }
 });
 
-// Mã hóa mật khẩu trước khi lưu
+// Mã hóa mật khẩu trước khi lưu (chỉ áp dụng nếu có password)
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password') || !this.password) return next();
-    this.password = await bcrypt.hash(this.password, 12);
-    next();
+
+    try {
+        // Only hash the password if it's modified or new
+        if (this.isModified('password') && this.password) {
+            const saltRounds = 12;
+            this.password = await bcrypt.hash(this.password, saltRounds);
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
 });
 
-// So sánh mật khẩu
-userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
-    return await bcrypt.compare(candidatePassword, userPassword);
+// So sánh mật khẩu - FIXED METHOD
+userSchema.methods.correctPassword = async function (candidatePassword) {
+    if (!this.password) return false; // User doesn't have a password (Google auth)
+    return await bcrypt.compare(candidatePassword, this.password);
 };
 
 // Check if model already exists before defining it
