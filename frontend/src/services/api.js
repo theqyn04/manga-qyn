@@ -1,4 +1,3 @@
-// File: src/services/api.js
 import axios from 'axios';
 
 const API = axios.create({
@@ -111,6 +110,15 @@ export const mangaAPI = {
     // Xóa page
     deletePage: (mangaId, chapterId, pageId) =>
         API.delete(`/mangas/${mangaId}/chapters/${chapterId}/pages/${pageId}`),
+
+    // Search manga
+    search: (query, params) => API.get('/mangas/search', { params: { q: query, ...params } }),
+
+    // Follow manga
+    follow: (mangaId) => API.post(`/follows/${mangaId}`),
+
+    // Unfollow manga
+    unfollow: (mangaId) => API.delete(`/follows/${mangaId}`),
 };
 
 export const userAPI = {
@@ -132,32 +140,92 @@ export const userAPI = {
     // Lấy activity của user
     getUserActivity: (userId) => API.get(`/users/${userId}/activity`),
 
-    getProfile: () => API.get('/users/profile'),
+    getProfile: () => API.get('/users/me'),
+
+    // Update user profile
+    updateProfile: (data) => API.put('/users/profile', data),
+
+    // Change password
+    changePassword: (data) => API.put('/users/password', data),
+
+    // Get user activities
+    getActivities: (userId, params) => API.get(`/users/${userId}/activities`, { params }),
+
+    // Get user followers
+    getFollowers: (userId, params) => API.get(`/relationships/${userId}/followers`, { params }),
+
+    // Get user following
+    getFollowing: (userId, params) => API.get(`/relationships/${userId}/following`, { params }),
+};
+
+// Follow/Relationship API methods
+export const followAPI = {
+    followUser: (userId) => API.post(`/relationships/${userId}/follow`),
+    unfollowUser: (userId) => API.delete(`/relationships/${userId}/follow`),
+    getFollowers: (userId, params) => API.get(`/relationships/${userId}/followers`, { params }),
+    getFollowing: (userId, params) => API.get(`/relationships/${userId}/following`, { params }),
 };
 
 // Comments API
 export const commentsAPI = {
-    getComments: (params) => API.get('/comments', { params }), // Fixed: Use API instead of api
-    createComment: (data) => API.post('/comments', data), // Fixed: Use API instead of api
-    updateComment: (id, data) => API.put(`/comments/${id}`, data), // Fixed: Use API instead of api
-    deleteComment: (id) => API.delete(`/comments/${id}`), // Fixed: Use API instead of api
+    getComments: (params) => API.get('/comments', { params }),
+    createComment: (data) => API.post('/comments', data),
+    updateComment: (id, data) => API.put(`/comments/${id}`, data),
+    deleteComment: (id) => API.delete(`/comments/${id}`),
 };
 
-export const followAPI = {
-    getFollows: () => API.get('/follows/my-follows'),
-    follow: (mangaId) => API.post(`/follows/${mangaId}`),
-    unfollow: (mangaId) => API.delete(`/follows/${mangaId}`),
-    getFollowStatus: (mangaId) => API.get(`/follows/${mangaId}/status`),
-    updateNotifications: (mangaId, enabled) =>
-        API.put(`/follows/${mangaId}/notifications`, { enabled })
+// Forum-specific API methods
+export const forumAPI = {
+    // Get categories
+    getCategories: () => API.get('/forum/categories'),
+
+    // Get threads
+    getThreads: (categoryId, params) => API.get(`/forum/categories/${categoryId}/threads`, { params }),
+
+    // Create thread
+    createThread: (data) => API.post('/forum/threads', data),
+
+    // Get thread by ID
+    getThread: (threadId) => API.get(`/forum/threads/${threadId}`),
+
+    // Create reply
+    createReply: (threadId, data) => API.post(`/forum/threads/${threadId}/replies`, data),
 };
 
+// Message-specific API methods
+export const messageAPI = {
+    // Get threads
+    getThreads: () => API.get('/messages/threads'),
+
+    // Get messages
+    getMessages: (threadId, params) => API.get(`/messages/threads/${threadId}`, { params }),
+
+    // Send message
+    sendMessage: (data) => API.post('/messages', data),
+};
+
+// Notification-specific API methods
 export const notificationAPI = {
+    // Get notifications
     getNotifications: (params) => API.get('/notifications', { params }),
+
+    // Mark as read
     markAsRead: (id) => API.put(`/notifications/${id}/read`),
+
+    // Mark all as read
     markAllAsRead: () => API.put('/notifications/read-all'),
+
+    // Delete notification
     deleteNotification: (id) => API.delete(`/notifications/${id}`),
-    getStats: () => API.get('/notifications/stats')
+};
+
+// Activity-specific API methods
+export const activityAPI = {
+    // Get activity feed
+    getFeed: (params) => API.get('/activities/feed', { params }),
+
+    // Get user activities
+    getUserActivities: (userId, params) => API.get(`/activities/user/${userId}`, { params }),
 };
 
 // Utility function for Cloudinary images

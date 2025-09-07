@@ -1,0 +1,146 @@
+.messages-page {
+    padding: 20px 0;
+}
+
+.messages-layout {
+    display: flex;
+    height: 70vh;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.threads-list {
+    width: 300px;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+}
+
+.threads-list h3 {
+    padding: 15px;
+    margin: 0;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.thread-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.thread-item:hover {
+    background: #f8f9fa;
+}
+
+.thread-item.active {
+    background: #e3f2fd;
+}
+
+.thread-item .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.thread-info {
+    flex: 1;
+}
+
+.thread-info .username {
+    font-weight: bold;
+    color: #333;
+}
+
+.thread-info .last-message {
+    color: #666;
+    font-size: 12px;
+}
+
+.messages-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-list {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: #fafafa;
+}
+
+.message {
+    margin-bottom: 15px;
+    max-width: 70%;
+}
+
+.message.sent {
+    margin-left: auto;
+    text-align: right;
+}
+
+.message.received {
+    margin-right: auto;
+}
+
+.message-content {
+    padding: 10px 15px;
+    border-radius: 18px;
+    display: inline-block;
+}
+
+.message.sent .message-content {
+    background: #007bff;
+    color: white;
+}
+
+.message.received .message-content {
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.message-time {
+    display: block;
+    font-size: 11px;
+    color: #999;
+    margin-top: 5px;
+}
+
+.message-input {
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    background: white;
+    display: flex;
+    gap: 10px;
+}
+
+.message-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.message-input button {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.no-thread-selected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-style: italic;
+}

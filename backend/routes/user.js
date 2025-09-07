@@ -202,15 +202,15 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// // File: routes/users.js
-// // Thêm endpoint mới
-// router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
-//     try {
-//         const user = await User.findById(req.user._id).select('-password');
-//         res.json(user);
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// });
+// File: routes/users.js
+// Thêm endpoint mới
+router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
 module.exports = router;

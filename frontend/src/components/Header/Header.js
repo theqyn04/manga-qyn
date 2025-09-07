@@ -4,32 +4,43 @@ import { useNavigate, Link } from 'react-router-dom';
 import { mangaAPI } from '../../services/api';
 import './Header.css';
 import logo from '../../assets/MangaQynLogo.png';
-import profileIcon from '../../assets/MangaQynLogo.png'; // Replace with your profile icon path
-import AuthModal from '../Auth/AuthModal';
 import { useAuth } from '../../contexts/AuthContext';
-import Loading from '../Loading/Loading';
+import AuthModal from '../Auth/AuthModal';
 
 const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [showUserDropdown, setShowUserDropdown] = useState(false);
     const navigate = useNavigate();
     const searchRef = useRef(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const dropdownRef = useRef(null);
     const { user, logout } = useAuth();
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-    // Check login status on component mount
+    // Close dropdown when clicking outside
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        setIsLoggedIn(!!token); // Set to true if token exists
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+                setIsSearchFocused(false);
+            }
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowUserDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        setIsLoggedIn(false); // Update login status
-        navigate('/'); // Redirect to homepage
+        logout();
+        setShowUserDropdown(false);
+        navigate('/');
     };
 
     const handleSearch = async (e) => {
@@ -75,27 +86,15 @@ const Header = () => {
     };
 
     const handleSearchBlur = () => {
-        // Delay hiding suggestions to allow for clicks
         setTimeout(() => {
             setShowSuggestions(false);
             setIsSearchFocused(false);
         }, 200);
     };
 
-    // Close search overlay when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (searchRef.current && !searchRef.current.contains(event.target)) {
-                setShowSuggestions(false);
-                setIsSearchFocused(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const toggleUserDropdown = () => {
+        setShowUserDropdown(!showUserDropdown);
+    };
 
     // Add/remove blur class to body based on search focus
     useEffect(() => {
@@ -124,7 +123,7 @@ const Header = () => {
                             <li><a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>Home</a></li>
                             <li><a href="/browse" onClick={(e) => { e.preventDefault(); navigate('/browse'); }}>Browse</a></li>
                             <li><a href="/updates" onClick={(e) => { e.preventDefault(); navigate('/updates'); }}>Updates</a></li>
-                            <li><a href="/community" onClick={(e) => { e.preventDefault(); navigate('/community'); }}>Community</a></li>
+                            <li><a href="/forum" onClick={(e) => { e.preventDefault(); navigate('/forum'); }}>Community</a></li>
                         </ul>
                     </nav>
 
@@ -167,18 +166,88 @@ const Header = () => {
                         )}
                     </div>
 
-                    <div className="user-actions">
+                    <div className="user-actions" ref={dropdownRef}>
                         {user ? (
                             <div className="user-menu">
-                                <Link to={`/profile/${user.id}`} className="profile-link">
+                                <div className="user-profile" onClick={toggleUserDropdown}>
                                     <img
                                         src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}&background=e63946&color=fff`}
                                         alt={user.username}
                                         className="user-avatar"
                                     />
                                     <span className="username">{user.username}</span>
-                                </Link>
-                                <button onClick={logout} className="logout-btn">Logout</button>
+                                    <i className={`fas fa-chevron-${showUserDropdown ? 'up' : 'down'}`}></i>
+                                </div>
+
+                                {showUserDropdown && (
+                                    <div className="user-dropdown">
+                                        <Link
+                                            to={`/profile/${user._id}`}
+                                            className="dropdown-item"
+                                            onClick={() => setShowUserDropdown(false)}
+                                        >
+                                            <i className="fas fa-user"></i>
+                                            <span>My Profile</span>
+                                        </Link>
+
+                                        <Link
+                                            to="/follows"
+                                            className="dropdown-item"
+                                            onClick={() => setShowUserDropdown(false)}
+                                        >
+                                            <i className="fas fa-bookmark"></i>
+                                            <span>My Follows</span>
+                                        </Link>
+
+                                        <Link
+                                            to="/activity"
+                                            className="dropdown-item"
+                                            onClick={() => setShowUserDropdown(false)}
+                                        >
+                                            <i className="fas fa-rss"></i>
+                                            <span>Activity Feed</span>
+                                        </Link>
+
+                                        <Link
+                                            to="/notifications"
+                                            className="dropdown-item"
+                                            onClick={() => setShowUserDropdown(false)}
+                                        >
+                                            <i className="fas fa-bell"></i>
+                                            <span>Notifications</span>
+                                            {/* You can add a badge here for unread notifications */}
+                                        </Link>
+
+                                        <Link
+                                            to="/messages"
+                                            className="dropdown-item"
+                                            onClick={() => setShowUserDropdown(false)}
+                                        >
+                                            <i className="fas fa-envelope"></i>
+                                            <span>Messages</span>
+                                            {/* You can add a badge here for unread messages */}
+                                        </Link>
+
+                                        <Link
+                                            to="/forum"
+                                            className="dropdown-item"
+                                            onClick={() => setShowUserDropdown(false)}
+                                        >
+                                            <i className="fas fa-comments"></i>
+                                            <span>Forum</span>
+                                        </Link>
+
+                                        <div className="dropdown-divider"></div>
+
+                                        <button
+                                            onClick={handleLogout}
+                                            className="dropdown-item logout-btn"
+                                        >
+                                            <i className="fas fa-sign-out-alt"></i>
+                                            <span>Logout</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <>
@@ -199,12 +268,12 @@ const Header = () => {
                     </div>
                 </div>
             </header>
-            
+
             <AuthModal
                 isOpen={isAuthModalOpen}
                 onClose={() => setIsAuthModalOpen(false)}
             />
-            
+
             {isSearchFocused && (
                 <div className="search-overlay" onClick={() => setIsSearchFocused(false)} />
             )}

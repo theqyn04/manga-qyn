@@ -11,6 +11,11 @@ import SearchPage from './pages/SearchPage/SearchPage';
 import MangaDetail from './pages/MangaDetail/MangaDetail';
 import ChapterReader from './pages/ChapterReader/ChapterReader';
 import UserProfile from './pages/UserProfile/UserProfile';
+import FollowsPage from './pages/FollowsPage/FollowsPage';
+import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
+import MessagesPage from './pages/MessagesPage/MessagesPage';
+import ForumPage from './pages/ForumPage/ForumPage';
+import ActivityFeed from './components/ActivityFeed/ActivityFeed';
 import './App.css';
 
 function App() {
@@ -27,6 +32,14 @@ function App() {
                             <Route path="/manga/:id" element={<MangaDetail />} />
                             <Route path="/manga/:mangaId/chapter/:chapterId" element={<ChapterReader />} />
                             <Route path="/profile/:id" element={<UserProfile />} />
+                            <Route path="/follows" element={<FollowsPage />} />
+                            <Route path="/notifications" element={<NotificationsPage />} />
+                            <Route path="/messages" element={<MessagesPage />} />
+                            <Route path="/messages/:threadId" element={<MessagesPage />} />
+                            <Route path="/forum" element={<ForumPage />} />
+                            <Route path="/forum/category/:categoryId" element={<ForumPage />} />
+                            <Route path="/forum/thread/:threadId" element={<ForumPage />} />
+                            <Route path="/activity" element={<ActivityFeed />} />
                         </Routes>
                     </main>
                     {/* Toast Container for notifications */}

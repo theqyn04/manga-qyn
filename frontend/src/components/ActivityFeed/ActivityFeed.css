@@ -1,0 +1,66 @@
+.activity-feed {
+    padding: 20px 0;
+}
+
+.activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.activity-item {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.activity-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.activity-header .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.activity-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    font-weight: bold;
+    color: #333;
+}
+
+.activity-type {
+    color: #666;
+    font-size: 14px;
+}
+
+.activity-date {
+    color: #999;
+    font-size: 12px;
+}
+
+.activity-content {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    color: #333;
+}
+
+.load-more-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
