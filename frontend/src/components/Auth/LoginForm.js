@@ -1,4 +1,4 @@
-// File: src/components/Auth/LoginForm.js
+// File: src/components/Auth/LoginForm.js (Updated)
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -8,7 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import './AuthForms.css';
 
-const LoginForm = ({ onSwitchToRegister }) => {
+const LoginForm = ({ onSwitchToRegister, onCloseModal }) => {
     const [serverError, setServerError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
@@ -27,18 +27,33 @@ const LoginForm = ({ onSwitchToRegister }) => {
                 password: data.password
             });
 
+            // Store user data and token
             login(response.data.user, response.data.token);
 
-            // Đóng modal sau khi login thành công (nếu cần)
-            // onCloseModal(); // Uncomment nếu bạn có prop onCloseModal
+            // Show success message
+            toast.success('Login successful!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+
+            // Close modal for regular users
+            if (response.data.user.role !== 'admin' && onCloseModal) {
+                onCloseModal();
+            }
+
+            // For admin users, the redirect happens in the AuthContext
 
         } catch (error) {
             const errorMessage = error.response?.data?.message ||
                 'Login failed. Please check your credentials and try again.';
 
             setServerError(errorMessage);
-
-            // Hiển thị thông báo lỗi dưới dạng toast
             toast.error(errorMessage, {
                 position: "top-right",
                 autoClose: 5000,

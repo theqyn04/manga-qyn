@@ -10,7 +10,7 @@ const auth = require('../../middleware/auth');
 const requireAdmin = require('../../middleware/admin');
 
 // Get dashboard statistics
-router.get('/dashboard', auth, requireAdmin, async (req, res) => {
+router.get('/analytics/dashboard', auth, requireAdmin, async (req, res) => {
     try {
         const [
             totalUsers,
@@ -83,7 +83,7 @@ router.get('/dashboard', auth, requireAdmin, async (req, res) => {
 });
 
 // Get content statistics
-router.get('/content-stats', auth, requireAdmin, async (req, res) => {
+router.get('/analytics/content-stats', auth, requireAdmin, async (req, res) => {
     try {
         const { period = '7days' } = req.query;
         let days;

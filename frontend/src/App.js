@@ -16,6 +16,8 @@ import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
 import MessagesPage from './pages/MessagesPage/MessagesPage';
 import ForumPage from './pages/ForumPage/ForumPage';
 import ActivityFeed from './components/ActivityFeed/ActivityFeed';
+import AdminRoute from './components/AdminRoute/AdminRoute';
+import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import './App.css';
 
 function App() {
@@ -40,6 +42,15 @@ function App() {
                             <Route path="/forum/category/:categoryId" element={<ForumPage />} />
                             <Route path="/forum/thread/:threadId" element={<ForumPage />} />
                             <Route path="/activity" element={<ActivityFeed />} />
+                            {/* Admin Route */}
+                            <Route
+                                path="/admin/dashboard"
+                                element={
+                                    <AdminRoute>
+                                        <AdminDashboard />
+                                    </AdminRoute>
+                                }
+                            />
                         </Routes>
                     </main>
                     {/* Toast Container for notifications */}

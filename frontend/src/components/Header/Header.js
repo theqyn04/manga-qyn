@@ -16,7 +16,7 @@ const Header = () => {
     const navigate = useNavigate();
     const searchRef = useRef(null);
     const dropdownRef = useRef(null);
-    const { user, logout } = useAuth();
+    const { user, logout, isAdmin } = useAuth();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     // Close dropdown when clicking outside
@@ -124,6 +124,14 @@ const Header = () => {
                             <li><a href="/browse" onClick={(e) => { e.preventDefault(); navigate('/browse'); }}>Browse</a></li>
                             <li><a href="/updates" onClick={(e) => { e.preventDefault(); navigate('/updates'); }}>Updates</a></li>
                             <li><a href="/forum" onClick={(e) => { e.preventDefault(); navigate('/forum'); }}>Community</a></li>
+                            {/* Admin Dashboard Link - Only visible to admins */}
+                            {isAdmin && (
+                                <li>
+                                    <Link to="/admin/dashboard" className="admin-nav-link">
+                                        Admin Dashboard
+                                    </Link>
+                                </li>
+                            )}
                         </ul>
                     </nav>
 
@@ -181,6 +189,18 @@ const Header = () => {
 
                                 {showUserDropdown && (
                                     <div className="user-dropdown">
+                                        {/* Admin Dashboard Link in Dropdown */}
+                                        {isAdmin && (
+                                            <Link
+                                                to="/admin/dashboard"
+                                                className="dropdown-item admin-dropdown-item"
+                                                onClick={() => setShowUserDropdown(false)}
+                                            >
+                                                <i className="fas fa-cog"></i>
+                                                <span>Admin Dashboard</span>
+                                            </Link>
+                                        )}
+
                                         <Link
                                             to={`/profile/${user._id}`}
                                             className="dropdown-item"

@@ -49,15 +49,14 @@ export const AuthProvider = ({ children }) => {
 
     const login = (userData, authToken) => {
         localStorage.setItem('token', authToken);
-        // Sử dụng API thay vì userAPI để set headers
-        API.defaults.headers.Authorization = `Bearer ${authToken}`;
         setToken(authToken);
         setUser(userData);
+        API.defaults.headers.Authorization = `Bearer ${authToken}`;
 
-        toast.success(`Welcome back, ${userData.username}! 🎉`, {
-            position: "top-right",
-            autoClose: 3000,
-        });
+        // Check if user is admin and redirect to dashboard
+        if (userData.role === 'admin') {
+            window.location.href = '/admin/dashboard';
+        }
     };
 
     const logout = () => {
