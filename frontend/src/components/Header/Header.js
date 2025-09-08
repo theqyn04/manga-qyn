@@ -215,7 +215,6 @@ const Header = () => {
                                         >
                                             <i className="fas fa-bell"></i>
                                             <span>Notifications</span>
-                                            {/* You can add a badge here for unread notifications */}
                                         </Link>
 
                                         <Link
@@ -225,7 +224,6 @@ const Header = () => {
                                         >
                                             <i className="fas fa-envelope"></i>
                                             <span>Messages</span>
-                                            {/* You can add a badge here for unread messages */}
                                         </Link>
 
                                         <Link
