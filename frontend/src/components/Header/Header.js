@@ -13,11 +13,92 @@ const Header = () => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [showUserDropdown, setShowUserDropdown] = useState(false);
+    const [showGenresDropdown, setShowGenresDropdown] = useState(false);
+    const [genres, setGenres] = useState([]);
     const navigate = useNavigate();
     const searchRef = useRef(null);
     const dropdownRef = useRef(null);
+    const genresRef = useRef(null);
     const { user, logout, isAdmin } = useAuth();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [showGenresOverlay, setShowGenresOverlay] = useState(false);
+
+    const handleGenreMouseEnter = () => {
+        setShowGenresDropdown(true);
+        setShowGenresOverlay(true);
+        document.body.classList.add('genres-dropdown-open');
+    };
+
+    const handleGenreMouseLeave = () => {
+        setShowGenresDropdown(false);
+        setShowGenresOverlay(false);
+        document.body.classList.remove('genres-dropdown-open');
+    };
+
+    const closeGenresDropdown = () => {
+        setShowGenresDropdown(false);
+        setShowGenresOverlay(false);
+        document.body.classList.remove('genres-dropdown-open');
+    };
+
+    // Sửa useEffect handleClickOutside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+                setIsSearchFocused(false);
+            }
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowUserDropdown(false);
+            }
+            if (genresRef.current && !genresRef.current.contains(event.target)) {
+                closeGenresDropdown();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // Fetch genres on component mount
+    useEffect(() => {
+        // Danh sách thể loại cứng
+        const hardcodedGenres = [
+            { _id: '1', name: 'Action' },
+            { _id: '2', name: 'Adventure' },
+            { _id: '3', name: 'Comedy' },
+            { _id: '4', name: 'Drama' },
+            { _id: '5', name: 'Fantasy' },
+            { _id: '6', name: 'Horror' },
+            { _id: '7', name: 'Romance' },
+            { _id: '8', name: 'Sci-Fi' },
+            { _id: '9', name: 'Slice of Life' },
+            { _id: '10', name: 'Supernatural' },
+            { _id: '11', name: 'Mystery' },
+            { _id: '12', name: 'Sports' },
+            { _id: '13', name: 'Isekai' },
+            { _id: '14', name: 'Shounen' },
+            { _id: '15', name: 'Shoujo' },
+            { _id: '16', name: 'Seinen' },
+            { _id: '17', name: 'Josei' },
+            { _id: '18', name: 'Mecha' },
+            { _id: '19', name: 'Psychological' },
+            { _id: '20', name: 'Historical' },
+            { _id: '21', name: 'School Life' },
+            { _id: '22', name: 'Martial Arts' },
+            { _id: '23', name: 'Magic' },
+            { _id: '24', name: 'Vampire' },
+            { _id: '25', name: 'Music' },
+            { _id: '26', name: 'Cooking' },
+            { _id: '27', name: 'Military' },
+            { _id: '28', name: 'Police' },
+            { _id: '29', name: 'Medical' },
+            { _id: '30', name: 'Harem' }
+        ];
+        setGenres(hardcodedGenres);
+    }, []);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -28,6 +109,9 @@ const Header = () => {
             }
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setShowUserDropdown(false);
+            }
+            if (genresRef.current && !genresRef.current.contains(event.target)) {
+                setShowGenresDropdown(false);
             }
         };
 
@@ -96,6 +180,12 @@ const Header = () => {
         setShowUserDropdown(!showUserDropdown);
     };
 
+    const handleGenreClick = (genre) => {
+        navigate(`/browse?genre=${genre}`);
+        setShowGenresDropdown(false);
+    };
+    
+
     // Add/remove blur class to body based on search focus
     useEffect(() => {
         if (isSearchFocused) {
@@ -112,180 +202,217 @@ const Header = () => {
     return (
         <>
             <header className="header">
-                <div className="header-container">
-                    <div className="logo" onClick={() => navigate('/')}>
-                        <img src={logo} alt="MangaQYN Logo" className="logo-image" />
-                        <h1>MANGA-QYN</h1>
-                    </div>
+                {/* Top Row: Logo, Search, User Actions */}
+                <div className="header-top-row">
+                    <div className="header-container">
+                        <div className="logo" onClick={() => navigate('/')}>
+                            <img src={logo} alt="MangaQYN Logo" className="logo-image" />
+                            <h1>MANGA-QYN</h1>
+                        </div>
 
-                    <nav className="nav">
-                        <ul>
-                            <li><a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>Home</a></li>
-                            <li><a href="/browse" onClick={(e) => { e.preventDefault(); navigate('/browse'); }}>Browse</a></li>
-                            <li><a href="/updates" onClick={(e) => { e.preventDefault(); navigate('/updates'); }}>Updates</a></li>
-                            <li><a href="/forum" onClick={(e) => { e.preventDefault(); navigate('/forum'); }}>Community</a></li>
-                            {/* Admin Dashboard Link - Only visible to admins */}
-                            {isAdmin && (
-                                <li>
-                                    <Link to="/admin/dashboard" className="admin-nav-link">
-                                        Admin Dashboard
-                                    </Link>
-                                </li>
-                            )}
-                        </ul>
-                    </nav>
-
-                    <div className="search-container" ref={searchRef}>
-                        <form className="search-form" onSubmit={handleSearch}>
-                            <input
-                                type="text"
-                                placeholder="Search manga..."
-                                value={searchQuery}
-                                onChange={handleSearchChange}
-                                onFocus={handleSearchFocus}
-                                onBlur={handleSearchBlur}
-                            />
-                            <button type="submit">
-                                <i className="fas fa-search"></i>
-                            </button>
-                        </form>
-                        {showSuggestions && suggestions.length > 0 && (
-                            <div className="suggestions-dropdown">
-                                {suggestions.map(manga => (
-                                    <div
-                                        key={manga._id}
-                                        className="suggestion-item"
-                                        onMouseDown={() => handleSuggestionClick(manga._id)}
-                                    >
-                                        <img
-                                            src={manga.coverImage || manga.cover}
-                                            alt={manga.title}
-                                            onError={(e) => {
-                                                e.target.src = 'https://via.placeholder.com/40x50/1a1a1a/666666?text=No+Image';
-                                            }}
-                                        />
-                                        <div className="suggestion-info">
-                                            <span className="suggestion-title">{manga.title}</span>
-                                            <span className="suggestion-author">{manga.author || 'Unknown Author'}</span>
+                        <div className="search-container" ref={searchRef}>
+                            <form className="search-form" onSubmit={handleSearch}>
+                                <input
+                                    type="text"
+                                    placeholder="Search manga..."
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    onFocus={handleSearchFocus}
+                                    onBlur={handleSearchBlur}
+                                />
+                                <button type="submit">
+                                    <i className="fas fa-search"></i>
+                                </button>
+                            </form>
+                            {showSuggestions && suggestions.length > 0 && (
+                                <div className="suggestions-dropdown">
+                                    {suggestions.map(manga => (
+                                        <div
+                                            key={manga._id}
+                                            className="suggestion-item"
+                                            onMouseDown={() => handleSuggestionClick(manga._id)}
+                                        >
+                                            <img
+                                                src={manga.coverImage || manga.cover}
+                                                alt={manga.title}
+                                                onError={(e) => {
+                                                    e.target.src = 'https://via.placeholder.com/40x50/1a1a1a/666666?text=No+Image';
+                                                }}
+                                            />
+                                            <div className="suggestion-info">
+                                                <span className="suggestion-title">{manga.title}</span>
+                                                <span className="suggestion-author">{manga.author || 'Unknown Author'}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="user-actions" ref={dropdownRef}>
-                        {user ? (
-                            <div className="user-menu">
-                                <div className="user-profile" onClick={toggleUserDropdown}>
-                                    <img
-                                        src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}&background=e63946&color=fff`}
-                                        alt={user.username}
-                                        className="user-avatar"
-                                    />
-                                    <span className="username">{user.username}</span>
-                                    <i className={`fas fa-chevron-${showUserDropdown ? 'up' : 'down'}`}></i>
+                                    ))}
                                 </div>
+                            )}
+                        </div>
 
-                                {showUserDropdown && (
-                                    <div className="user-dropdown">
-                                        {/* Admin Dashboard Link in Dropdown */}
-                                        {isAdmin && (
+                        <div className="user-actions" ref={dropdownRef}>
+                            {user ? (
+                                <div className="user-menu">
+                                    <div className="user-profile" onClick={toggleUserDropdown}>
+                                        <img
+                                            src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}&background=e63946&color=fff`}
+                                            alt={user.username}
+                                            className="user-avatar"
+                                        />
+                                        <span className="username">{user.username}</span>
+                                        <i className={`fas fa-chevron-${showUserDropdown ? 'up' : 'down'}`}></i>
+                                    </div>
+
+                                    {showUserDropdown && (
+                                        <div className="user-dropdown">
+                                            {/* Admin Dashboard Link in Dropdown */}
+                                            {isAdmin && (
+                                                <Link
+                                                    to="/admin/dashboard"
+                                                    className="dropdown-item admin-dropdown-item"
+                                                    onClick={() => setShowUserDropdown(false)}
+                                                >
+                                                    <i className="fas fa-cog"></i>
+                                                    <span>Admin Dashboard</span>
+                                                </Link>
+                                            )}
+
                                             <Link
-                                                to="/admin/dashboard"
-                                                className="dropdown-item admin-dropdown-item"
+                                                to={`/profile/${user._id}`}
+                                                className="dropdown-item"
                                                 onClick={() => setShowUserDropdown(false)}
                                             >
-                                                <i className="fas fa-cog"></i>
-                                                <span>Admin Dashboard</span>
+                                                <i className="fas fa-user"></i>
+                                                <span>My Profile</span>
                                             </Link>
-                                        )}
 
-                                        <Link
-                                            to={`/profile/${user._id}`}
-                                            className="dropdown-item"
-                                            onClick={() => setShowUserDropdown(false)}
-                                        >
-                                            <i className="fas fa-user"></i>
-                                            <span>My Profile</span>
+                                            <Link
+                                                to="/follows"
+                                                className="dropdown-item"
+                                                onClick={() => setShowUserDropdown(false)}
+                                            >
+                                                <i className="fas fa-bookmark"></i>
+                                                <span>My Follows</span>
+                                            </Link>
+
+                                            <Link
+                                                to="/activity"
+                                                className="dropdown-item"
+                                                onClick={() => setShowUserDropdown(false)}
+                                            >
+                                                <i className="fas fa-rss"></i>
+                                                <span>Activity Feed</span>
+                                            </Link>
+
+                                            <Link
+                                                to="/notifications"
+                                                className="dropdown-item"
+                                                onClick={() => setShowUserDropdown(false)}
+                                            >
+                                                <i className="fas fa-bell"></i>
+                                                <span>Notifications</span>
+                                            </Link>
+
+                                            <Link
+                                                to="/messages"
+                                                className="dropdown-item"
+                                                onClick={() => setShowUserDropdown(false)}
+                                            >
+                                                <i className="fas fa-envelope"></i>
+                                                <span>Messages</span>
+                                            </Link>
+
+                                            <Link
+                                                to="/forum"
+                                                className="dropdown-item"
+                                                onClick={() => setShowUserDropdown(false)}
+                                            >
+                                                <i className="fas fa-comments"></i>
+                                                <span>Forum</span>
+                                            </Link>
+
+                                            <div className="dropdown-divider"></div>
+
+                                            <button
+                                                onClick={handleLogout}
+                                                className="dropdown-item logout-btn"
+                                            >
+                                                <i className="fas fa-sign-out-alt"></i>
+                                                <span>Logout</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    <button
+                                        className="login-btn"
+                                        onClick={() => setIsAuthModalOpen(true)}
+                                    >
+                                        Login
+                                    </button>
+                                    <button
+                                        className="signup-btn"
+                                        onClick={() => setIsAuthModalOpen(true)}
+                                    >
+                                        Sign Up
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Bottom Row: Navigation Tabs */}
+                <div className="header-bottom-row">
+                    <div className="nav-container">
+                        <nav className="nav">
+                            <ul>
+                                <li><a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>Home</a></li>
+                                <li><a href="/follows" onClick={(e) => { e.preventDefault(); navigate('/follows'); }}>Theo dõi</a></li>
+                                <li><a href="/hot" onClick={(e) => { e.preventDefault(); navigate('/hot'); }}>Hot Yêu thích</a></li>
+                                <li><a href="/updates" onClick={(e) => { e.preventDefault(); navigate('/updates'); }}>Mới cập nhật</a></li>
+                                <li><a href="/history" onClick={(e) => { e.preventDefault(); navigate('/history'); }}>Lịch sử</a></li>
+                                <li
+                                    className="genres-menu"
+                                    ref={genresRef}
+                                    onMouseEnter={() => setShowGenresDropdown(true)}
+                                    onMouseLeave={() => setShowGenresDropdown(false)}
+                                >
+                                    <a href="#genres" onClick={(e) => e.preventDefault()}>
+                                        Thể loại <i className="fas fa-chevron-down"></i>
+                                    </a>
+                                    {showGenresDropdown && (
+                                        <div className="genres-dropdown">
+                                            <div className="genres-grid">
+                                                {genres.map(genre => (
+                                                    <div
+                                                        key={genre._id || genre.name}
+                                                        className="genre-item"
+                                                        onClick={() => handleGenreClick(genre.name)}
+                                                    >
+                                                        {genre.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </li>
+                                <li><a href="/browse" onClick={(e) => { e.preventDefault(); navigate('/browse'); }}>Tìm truyện</a></li>
+                                {/* Admin Dashboard Link - Only visible to admins */}
+                                {isAdmin && (
+                                    <li>
+                                        <Link to="/admin/dashboard" className="admin-nav-link">
+                                            Admin Dashboard
                                         </Link>
-
-                                        <Link
-                                            to="/follows"
-                                            className="dropdown-item"
-                                            onClick={() => setShowUserDropdown(false)}
-                                        >
-                                            <i className="fas fa-bookmark"></i>
-                                            <span>My Follows</span>
-                                        </Link>
-
-                                        <Link
-                                            to="/activity"
-                                            className="dropdown-item"
-                                            onClick={() => setShowUserDropdown(false)}
-                                        >
-                                            <i className="fas fa-rss"></i>
-                                            <span>Activity Feed</span>
-                                        </Link>
-
-                                        <Link
-                                            to="/notifications"
-                                            className="dropdown-item"
-                                            onClick={() => setShowUserDropdown(false)}
-                                        >
-                                            <i className="fas fa-bell"></i>
-                                            <span>Notifications</span>
-                                        </Link>
-
-                                        <Link
-                                            to="/messages"
-                                            className="dropdown-item"
-                                            onClick={() => setShowUserDropdown(false)}
-                                        >
-                                            <i className="fas fa-envelope"></i>
-                                            <span>Messages</span>
-                                        </Link>
-
-                                        <Link
-                                            to="/forum"
-                                            className="dropdown-item"
-                                            onClick={() => setShowUserDropdown(false)}
-                                        >
-                                            <i className="fas fa-comments"></i>
-                                            <span>Forum</span>
-                                        </Link>
-
-                                        <div className="dropdown-divider"></div>
-
-                                        <button
-                                            onClick={handleLogout}
-                                            className="dropdown-item logout-btn"
-                                        >
-                                            <i className="fas fa-sign-out-alt"></i>
-                                            <span>Logout</span>
-                                        </button>
-                                    </div>
+                                    </li>
                                 )}
-                            </div>
-                        ) : (
-                            <>
-                                <button
-                                    className="login-btn"
-                                    onClick={() => setIsAuthModalOpen(true)}
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    className="signup-btn"
-                                    onClick={() => setIsAuthModalOpen(true)}
-                                >
-                                    Sign Up
-                                </button>
-                            </>
-                        )}
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </header>
+
+            
 
             <AuthModal
                 isOpen={isAuthModalOpen}

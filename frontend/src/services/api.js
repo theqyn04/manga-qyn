@@ -130,6 +130,10 @@ export const mangaAPI = {
 
     // Unfollow manga
     unfollow: (mangaId) => API.delete(`/follows/${mangaId}`),
+
+    getCategories: () => {
+        return axios.get('/api/manga/categories/all');
+    },
 };
 
 export const userAPI = {

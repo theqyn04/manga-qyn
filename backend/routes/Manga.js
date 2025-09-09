@@ -4,6 +4,7 @@ const router = express.Router();
 const Manga = require('../models/Manga');
 const NotificationService = require('../services/notificationService');
 const auth = require('../middleware/auth');
+const Genre = require('../models/Genre');
 
 // Lấy danh sách truyện với phân trang, tìm kiếm và lọc
 router.get('/', async (req, res) => {
@@ -586,5 +587,121 @@ router.delete('/:mangaId/chapters/:chapterId/pages/:pageId', async (req, res) =>
         res.status(500).json({ message: error.message });
     }
 });
+
+// GET /api/manga/genres/all - Lấy tất cả thể loại
+router.get('/genres/all', async (req, res) => {
+    try {
+        const genres = await Genre.find({ isActive: true })
+            .sort({ name: 1 })
+            .select('name description mangaCount');
+
+        res.json(genres);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// GET /api/manga/genres/popular - Lấy thể loại phổ biến
+router.get('/genres/popular', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+
+        const genres = await Genre.find({ isActive: true })
+            .sort({ mangaCount: -1 })
+            .limit(limit)
+            .select('name mangaCount');
+
+        res.json(genres);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// POST /api/manga/genres - Tạo thể loại mới (Admin only)
+router.post('/genres', auth, async (req, res) => {
+    try {
+        // Kiểm tra quyền admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền truy cập' });
+        }
+
+        const { name, description } = req.body;
+
+        // Kiểm tra thể loại đã tồn tại
+        const existingGenre = await Genre.findOne({
+            name: { $regex: new RegExp(`^${name}$`, 'i') }
+        });
+
+        if (existingGenre) {
+            return res.status(400).json({ message: 'Thể loại đã tồn tại' });
+        }
+
+        const genre = new Genre({
+            name,
+            description
+        });
+
+        const newGenre = await genre.save();
+        res.status(201).json(newGenre);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// PUT /api/manga/genres/:id - Cập nhật thể loại (Admin only)
+router.put('/genres/:id', auth, async (req, res) => {
+    try {
+        // Kiểm tra quyền admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền truy cập' });
+        }
+
+        const genre = await Genre.findById(req.params.id);
+        if (!genre) {
+            return res.status(404).json({ message: 'Không tìm thấy thể loại' });
+        }
+
+        if (req.body.name) genre.name = req.body.name;
+        if (req.body.description !== undefined) genre.description = req.body.description;
+        if (req.body.isActive !== undefined) genre.isActive = req.body.isActive;
+
+        const updatedGenre = await genre.save();
+        res.json(updatedGenre);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// DELETE /api/manga/genres/:id - Xóa thể loại (Admin only)
+router.delete('/genres/:id', auth, async (req, res) => {
+    try {
+        // Kiểm tra quyền admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Không có quyền truy cập' });
+        }
+
+        const genre = await Genre.findById(req.params.id);
+        if (!genre) {
+            return res.status(404).json({ message: 'Không tìm thấy thể loại' });
+        }
+
+        // Kiểm tra xem thể loại có đang được sử dụng không
+        const mangaCount = await Manga.countDocuments({
+            categories: { $in: [genre.name] }
+        });
+
+        if (mangaCount > 0) {
+            return res.status(400).json({
+                message: `Không thể xóa thể loại đang được sử dụng bởi ${mangaCount} truyện`
+            });
+        }
+
+        await Genre.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Đã xóa thể loại thành công' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 module.exports = router;

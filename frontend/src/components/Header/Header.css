@@ -1,14 +1,23 @@
+/* src/components/Header/Header.css */
 .header {
     background-color: #121212;
     color: white;
-    padding: 12px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     position: sticky;
     top: 0;
     z-index: 1000;
+    /* Giữ nguyên z-index của header */
 }
 
-.header-container {
+.header-bottom-row {
+    background-color: #1a1a1a;
+    position: relative;
+    z-index: 1001;
+    height: 60px; /* Thêm chiều cao cố định */
+}
+
+.header-top-row .header-container,
+.nav-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -16,6 +25,11 @@
     margin: 0 auto;
     padding: 0 20px;
     height: 60px;
+}
+
+.header-bottom-row {
+    background-color: #1a1a1a;
+    position: relative;
 }
 
 .logo {
@@ -50,17 +64,27 @@
     flex: 1;
     display: flex;
     justify-content: center;
+    height: 100%;
+}
+
+.nav-container {
+    position: static;
+    height: 100%;
 }
 
 .nav ul {
     display: flex;
     list-style: none;
-    gap: 25px;
+    gap: 15px;
     margin: 0;
     padding: 0;
     align-items: center;
     height: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    position: relative;
 }
+
 
 .nav a {
     color: #e1e1e1;
@@ -71,6 +95,9 @@
     border-radius: 4px;
     font-size: 14px;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .nav a:hover {
@@ -110,6 +137,8 @@
     z-index: 999;
     flex-shrink: 0;
     margin: 0 20px;
+    flex: 1;
+    max-width: 500px;
 }
 
 .search-form {
@@ -125,7 +154,7 @@
     outline: none;
     background-color: #2c2c2c;
     color: #e1e1e1;
-    width: 250px;
+    width: 100%;
     font-size: 13px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -220,6 +249,18 @@
     }
 }
 
+/* Animation cho dropdown */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 body.search-focused {
     overflow: hidden;
 }
@@ -229,7 +270,6 @@ body.search-focused .header {
 }
 
 body.search-focused .search-form input {
-    width: 300px;
     background-color: #1a1a1a;
     box-shadow: 0 4px 20px rgba(230, 57, 70, 0.3);
 }
@@ -251,6 +291,10 @@ body.search-focused .search-form input {
     visibility: hidden;
     transition: all 0.3s ease;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+body {
+    overflow-x: hidden;
 }
 
 body.search-focused .suggestions-dropdown {
@@ -401,6 +445,79 @@ body.search-focused .suggestions-dropdown {
     color: #e74c3c;
 }
 
+/* Genres Dropdown Styles */
+.genres-menu {
+    position: static;
+    z-index: 1003;
+    /* Tăng z-index để hiển thị trên các phần tử khác */
+}
+
+/* Custom scrollbar cho dropdown */
+.genres-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.genres-dropdown::-webkit-scrollbar-track {
+    background: #2c2c2c;
+    border-radius: 3px;
+}
+
+.genres-dropdown::-webkit-scrollbar-thumb {
+    background: #e63946;
+    border-radius: 3px;
+}
+
+.genres-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #d62c3b;
+}
+
+
+.genres-dropdown {
+    position: fixed; /* Đổi từ absolute thành fixed */
+    top: 120px; /* Vị trí tính từ top của viewport */
+    left: 50%; /* Căn giữa */
+    transform: translateX(-50%); /* Căn giữa */
+    background-color: #1a1a1a;
+    border: 1px solid #2c2c2c;
+    border-radius: 8px;
+    z-index: 1003;
+    width: 800px; /* Tăng width để hiển thị nhiều thể loại hơn */
+    max-height: 500px; /* Tăng chiều cao tối đa */
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+    animation: slideDown 0.3s ease;
+}
+
+
+.genres-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Tăng lên 5 cột */
+    gap: 12px;
+}
+
+.genre-item {
+    padding: 12px 15px;
+    background-color: #2c2c2c;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid transparent;
+}
+
+.genre-item:hover {
+    background-color: #e63946;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3);
+    border-color: #ff6b6b;
+}
+
 /* Notification badges */
 .notification-badge {
     background: #e63946;
@@ -413,27 +530,33 @@ body.search-focused .suggestions-dropdown {
 
 /* Responsive design */
 @media (max-width: 1024px) {
-    .header-container {
+
+    .header-top-row .header-container,
+    .nav-container {
         padding: 0 15px;
     }
 
     .nav ul {
-        gap: 15px;
+        gap: 12px;
     }
 
-    .search-form input {
-        width: 200px;
+    .search-container {
+        margin: 0 15px;
     }
 
-    body.search-focused .search-form input {
-        width: 250px;
+    .genres-dropdown {
+        width: 400px;
+    }
+
+    .genres-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 768px) {
-    .header-container {
-        height: auto;
+    .header-top-row .header-container {
         flex-wrap: wrap;
+        height: auto;
         padding: 10px 15px;
     }
 
@@ -441,44 +564,24 @@ body.search-focused .suggestions-dropdown {
         order: 1;
     }
 
-    .nav {
+    .search-container {
         order: 3;
-        width: 100%;
-        margin-top: 10px;
-        justify-content: flex-start;
+        margin: 10px 0;
+        max-width: 100%;
+    }
+
+    .user-actions {
+        order: 2;
     }
 
     .nav ul {
-        gap: 10px;
-        overflow-x: auto;
+        gap: 8px;
         padding-bottom: 5px;
     }
 
     .nav a {
         padding: 6px 10px;
         font-size: 12px;
-    }
-
-    .search-container {
-        order: 2;
-        margin: 0 0 0 auto;
-        flex: 1;
-        max-width: 200px;
-    }
-
-    .search-form input {
-        width: 100%;
-    }
-
-    .user-actions {
-        order: 4;
-        width: 100%;
-        justify-content: center;
-        margin-top: 10px;
-    }
-
-    body.search-focused .search-form input {
-        width: 100%;
     }
 
     .user-profile .username {
@@ -493,6 +596,15 @@ body.search-focused .suggestions-dropdown {
     .user-profile {
         padding: 6px 8px;
     }
+
+    .genres-dropdown {
+        width: 300px;
+        left: -100px;
+    }
+
+    .genres-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 480px) {
@@ -505,7 +617,7 @@ body.search-focused .suggestions-dropdown {
     }
 
     .nav ul {
-        gap: 8px;
+        gap: 6px;
     }
 
     .nav a {
@@ -523,4 +635,99 @@ body.search-focused .suggestions-dropdown {
         padding: 6px 12px;
         font-size: 12px;
     }
+
+    .genres-dropdown {
+        width: 250px;
+        left: -120px;
+    }
+
+    .genres-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Sửa responsive design */
+@media (max-width: 1024px) {
+    .genres-dropdown {
+        width: 700px;
+        top: 110px;
+    }
+    
+    .genres-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .genres-dropdown {
+        width: 90vw;
+        left: 5vw;
+        transform: none;
+        top: 100px;
+        padding: 15px;
+    }
+    
+    .genres-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .header-bottom-row {
+        height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .genres-dropdown {
+        width: 95vw;
+        left: 2.5vw;
+        top: 90px;
+        padding: 10px;
+    }
+    
+    .genres-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .genre-item {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .header-bottom-row {
+        height: 45px;
+    }
+}
+
+/* Animation cải tiến */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+.genres-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1002;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.3s ease;
+}
+
+/* Đảm bảo dropdown hiển thị trên tất cả các phần tử khác */
+body.genres-dropdown-open {
+    overflow: hidden;
+}
+
+body.genres-dropdown-open .header {
+    z-index: 1004;
 }
