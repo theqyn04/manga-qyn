@@ -1,4 +1,5 @@
 // File: src/components/Auth/LoginForm.js (Updated)
+// src/components/Auth/LoginForm.js
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -8,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import './AuthForms.css';
 
-const LoginForm = ({ onSwitchToRegister, onCloseModal }) => {
+const LoginForm = ({ onSwitchToRegister, onCloseModal, showCloseButton = true }) => {
     const [serverError, setServerError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
@@ -22,10 +23,14 @@ const LoginForm = ({ onSwitchToRegister, onCloseModal }) => {
         setServerError('');
 
         try {
+            console.log('Attempting login with:', data.email);
+
             const response = await userAPI.login({
                 email: data.email,
                 password: data.password
             });
+
+            console.log('Login response:', response.data);
 
             // Store user data and token
             login(response.data.user, response.data.token);
@@ -42,14 +47,14 @@ const LoginForm = ({ onSwitchToRegister, onCloseModal }) => {
                 theme: "dark",
             });
 
-            // Close modal for regular users
-            if (response.data.user.role !== 'admin' && onCloseModal) {
+            // Close modal if it's in modal context
+            if (onCloseModal) {
                 onCloseModal();
             }
 
-            // For admin users, the redirect happens in the AuthContext
-
         } catch (error) {
+            console.error('Login error details:', error);
+
             const errorMessage = error.response?.data?.message ||
                 'Login failed. Please check your credentials and try again.';
 

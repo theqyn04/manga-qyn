@@ -1,7 +1,5 @@
-// File: src/contexts/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import API, { userAPI } from '../services/api'; // Import cả API và userAPI
+import API from '../services/api';
 
 const AuthContext = createContext();
 
@@ -15,39 +13,55 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState(localStorage.getItem('token'));
 
     useEffect(() => {
-        const verifyToken = async () => {
+        const initAuth = async () => {
             const storedToken = localStorage.getItem('token');
 
-            if (!storedToken) {
-                setLoading(false);
-                return;
+            console.log('Stored token from localStorage:', storedToken);
+
+            if (storedToken) {
+                try {
+                    console.log('Found token in storage, validating...');
+
+                    // Set the token first
+                    setToken(storedToken);
+                    API.defaults.headers.Authorization = `Bearer ${storedToken}`;
+
+                    // Then fetch user profile using the correct endpoint
+                    await fetchUserProfile();
+                } catch (error) {
+                    console.error('Invalid token or failed to fetch user:', error);
+                    logout(); // Clear invalid token
+                }
             }
 
-            try {
-                // Sử dụng API thay vì userAPI để set headers
-                API.defaults.headers.Authorization = `Bearer ${storedToken}`;
-
-                // Sử dụng userAPI.getProfile() để lấy thông tin user
-                const response = await userAPI.getProfile();
-                setUser(response.data);
-                setToken(storedToken);
-            } catch (error) {
-                console.error('Token verification failed:', error);
-                localStorage.removeItem('token');
-                delete API.defaults.headers.Authorization;
-            } finally {
-                setLoading(false);
-            }
+            setLoading(false);
         };
 
-        verifyToken();
+        initAuth();
     }, []);
 
-    const login = (userData, authToken) => {
+    const fetchUserProfile = async () => {
+        try {
+            console.log('Fetching user profile...');
+            const response = await API.get('/users/profile'); // Use correct endpoint
+            console.log('User profile fetched successfully:', response.data);
+            setUser(response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            if (error.response?.status === 401) {
+                logout();
+            }
+            throw error;
+        }
+    };
+
+    const login = async (userData, authToken) => {
+        console.log('Logging in user:', userData);
         localStorage.setItem('token', authToken);
         setToken(authToken);
         setUser(userData);
@@ -55,28 +69,30 @@ export const AuthProvider = ({ children }) => {
 
         // Check if user is admin and redirect to dashboard
         if (userData.role === 'admin') {
+            console.log('User is admin, redirecting to dashboard...');
             window.location.href = '/admin/dashboard';
+        } else {
+            console.log('Regular user, no redirect needed');
         }
     };
 
     const logout = () => {
+        console.log('Logging out...');
         localStorage.removeItem('token');
-        delete API.defaults.headers.Authorization;
         setToken(null);
         setUser(null);
-
-        toast.info('You have been logged out successfully.', {
-            position: "top-right",
-            autoClose: 2000,
-        });
+        delete API.defaults.headers.Authorization;
     };
 
     const value = {
         user,
         token,
+        loading,
         login,
         logout,
-        loading
+        isAuthenticated: !!user && !!token,
+        isAdmin: user?.role === 'admin',
+        refreshUser: fetchUserProfile
     };
 
     return (

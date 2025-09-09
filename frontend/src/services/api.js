@@ -1,8 +1,14 @@
 // frontend/src/services/api.js
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || window.location.origin.includes('localhost')
+    ? 'http://localhost:5000'
+    : window.location.origin;
+
+console.log('API Base URL:', API_BASE_URL);
+
 const API = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+    baseURL: `${API_BASE_URL}/api`,
     timeout: 10000,
     withCredentials: true,
 });
@@ -15,9 +21,12 @@ API.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Đảm bảo headers luôn được set
+        // Ensure headers are always set
         config.headers['Content-Type'] = 'application/json';
         config.headers['Accept'] = 'application/json';
+
+        // Log the request for debugging
+        console.log('Making API request to:', config.baseURL + config.url);
 
         return config;
     },
@@ -33,12 +42,28 @@ API.interceptors.response.use(
         return response;
     },
     (error) => {
-        console.error('Response error:', error.response?.data || error.message);
+        console.error('API Error:', {
+            url: error.config?.baseURL + error.config?.url,
+            status: error.response?.status,
+            message: error.message,
+            response: error.response?.data
+        });
 
+        // Handle network errors
+        if (error.code === 'ECONNABORTED') {
+            console.error('Request timeout');
+        }
+
+        // Handle 401 Unauthorized errors
         if (error.response?.status === 401) {
+            console.log('Token expired or invalid, logging out...');
             localStorage.removeItem('token');
             delete API.defaults.headers.Authorization;
-            window.location.href = '/login';
+
+            // Only redirect if we're not already on the login page
+            if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
+            }
         }
 
         return Promise.reject(error);
@@ -141,7 +166,7 @@ export const userAPI = {
     // Lấy activity của user
     getUserActivity: (userId) => API.get(`/users/${userId}/activity`),
 
-    getProfile: () => API.get('/users/me'),
+    getProfile: () => API.get('/users/profile'),
 
     // Update user profile
     updateProfile: (data) => API.put('/users/profile', data),

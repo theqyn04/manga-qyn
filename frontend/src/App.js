@@ -18,15 +18,27 @@ import ForumPage from './pages/ForumPage/ForumPage';
 import ActivityFeed from './components/ActivityFeed/ActivityFeed';
 import AdminRoute from './components/AdminRoute/AdminRoute';
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
+import LoginPage from './pages/LoginPage/LoginPage';
+import DebugInfo from './components/Debug/DebugInfo';
+import PublicRoute from './components/PublicRoute/PublicRoute';
+
+import TestLogin from './components/TestLogin/TestLogin';
+
 import './App.css';
 
 function App() {
     return (
         <AuthProvider>
+            <DebugInfo /> {/* Add debug component */}
             <Router>
                 <div className="App">
                     <Header />
                     <main className="main-content">
+
+                        {/* Show TestLogin component only in development */}
+                        <TestLogin />
+
+
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/browse" element={<BrowsePage />} />
@@ -42,6 +54,14 @@ function App() {
                             <Route path="/forum/category/:categoryId" element={<ForumPage />} />
                             <Route path="/forum/thread/:threadId" element={<ForumPage />} />
                             <Route path="/activity" element={<ActivityFeed />} />
+                            <Route
+                                path="/login"
+                                element={
+                                    <PublicRoute>
+                                        <LoginPage />
+                                    </PublicRoute>
+                                }
+                            />
                             {/* Admin Route */}
                             <Route
                                 path="/admin/dashboard"

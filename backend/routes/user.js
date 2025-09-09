@@ -1,4 +1,4 @@
-//routes/users.js
+//routes/user.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -211,6 +211,11 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+});
+
+// Verify token endpoint
+router.get('/verify-token', passport.authenticate('jwt', { session: false }), (req, res) => {
+    res.json({ valid: true, user: req.user });
 });
 
 module.exports = router;
