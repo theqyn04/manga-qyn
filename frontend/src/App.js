@@ -21,24 +21,18 @@ import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import LoginPage from './pages/LoginPage/LoginPage';
 import DebugInfo from './components/Debug/DebugInfo';
 import PublicRoute from './components/PublicRoute/PublicRoute';
-
-import TestLogin from './components/TestLogin/TestLogin';
-
+import AuthInitializer from './components/Auth/AuthInitializer';
 import './App.css';
 
 function App() {
     return (
         <AuthProvider>
+            <AuthInitializer />
             <DebugInfo /> {/* Add debug component */}
             <Router>
                 <div className="App">
                     <Header />
                     <main className="main-content">
-
-                        {/* Show TestLogin component only in development */}
-                        <TestLogin />
-
-
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/browse" element={<BrowsePage />} />

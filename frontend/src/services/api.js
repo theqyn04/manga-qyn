@@ -16,17 +16,13 @@ const API = axios.create({
 // Request interceptor
 API.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token'); // Always get from localStorage
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Ensure headers are always set
         config.headers['Content-Type'] = 'application/json';
         config.headers['Accept'] = 'application/json';
-
-        // Log the request for debugging
-        console.log('Making API request to:', config.baseURL + config.url);
 
         return config;
     },
@@ -36,31 +32,20 @@ API.interceptors.request.use(
     }
 );
 
-// Response interceptor
+// Response interceptor - handle token expiration
 API.interceptors.response.use(
     (response) => {
         return response;
     },
     (error) => {
-        console.error('API Error:', {
-            url: error.config?.baseURL + error.config?.url,
-            status: error.response?.status,
-            message: error.message,
-            response: error.response?.data
-        });
+        console.error('Response error:', error.response?.data || error.message);
 
-        // Handle network errors
-        if (error.code === 'ECONNABORTED') {
-            console.error('Request timeout');
-        }
-
-        // Handle 401 Unauthorized errors
         if (error.response?.status === 401) {
-            console.log('Token expired or invalid, logging out...');
+            // Token expired or invalid
             localStorage.removeItem('token');
             delete API.defaults.headers.Authorization;
 
-            // Only redirect if we're not already on the login page
+            // Only redirect if not already on login page
             if (!window.location.pathname.includes('/login')) {
                 window.location.href = '/login';
             }

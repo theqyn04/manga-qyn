@@ -206,9 +206,28 @@ router.get('/:id', async (req, res) => {
 // Thêm endpoint mới
 router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
+        console.log('=== /profile endpoint called ===');
+        console.log('Authenticated user object:', req.user);
+        console.log('User ID:', req.user._id);
+        console.log('User ID type:', typeof req.user._id);
+        console.log('Is valid ObjectId?', mongoose.Types.ObjectId.isValid(req.user._id));
+
+        if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
+            console.log('❌ INVALID USER ID FORMAT:', req.user._id);
+            return res.status(400).json({ message: 'Invalid user ID format' });
+        }
+
         const user = await User.findById(req.user._id).select('-password');
+
+        if (!user) {
+            console.log('❌ USER NOT FOUND with ID:', req.user._id);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        console.log('✅ User found:', user.username, user.email);
         res.json(user);
     } catch (error) {
+        console.error('❌ Error in /profile endpoint:', error);
         res.status(500).json({ message: error.message });
     }
 });

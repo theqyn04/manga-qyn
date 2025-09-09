@@ -1,3 +1,4 @@
+// src/contexts/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import API from '../services/api';
 
@@ -18,27 +19,42 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const initAuth = async () => {
-            const storedToken = localStorage.getItem('token');
+            console.log('AuthProvider initializing...');
 
-            console.log('Stored token from localStorage:', storedToken);
+            // Check if token exists in localStorage
+            const storedToken = localStorage.getItem('token');
+            console.log('Stored token in localStorage:', storedToken ? 'Yes' : 'No');
 
             if (storedToken) {
                 try {
-                    console.log('Found token in storage, validating...');
+                    console.log('Token found, validating...');
 
-                    // Set the token first
-                    setToken(storedToken);
+                    // Set the token in API headers
                     API.defaults.headers.Authorization = `Bearer ${storedToken}`;
+                    console.log('Authorization header set');
 
-                    // Then fetch user profile using the correct endpoint
-                    await fetchUserProfile();
+                    // Try to fetch user profile to validate token
+                    const userProfile = await fetchUserProfile();
+                    console.log('User profile fetched successfully');
+
+                    // If successful, update state
+                    setToken(storedToken);
+                    setUser(userProfile);
+                    console.log('Auth state updated with user:', userProfile.username);
+
                 } catch (error) {
-                    console.error('Invalid token or failed to fetch user:', error);
-                    logout(); // Clear invalid token
+                    console.error('Token validation failed:', error);
+                    // Clear invalid token
+                    localStorage.removeItem('token');
+                    delete API.defaults.headers.Authorization;
+                    console.log('Invalid token cleared');
                 }
+            } else {
+                console.log('No token found in localStorage');
             }
 
             setLoading(false);
+            console.log('AuthProvider initialization complete');
         };
 
         initAuth();
@@ -47,41 +63,50 @@ export const AuthProvider = ({ children }) => {
     const fetchUserProfile = async () => {
         try {
             console.log('Fetching user profile...');
-            const response = await API.get('/users/profile'); // Use correct endpoint
-            console.log('User profile fetched successfully:', response.data);
-            setUser(response.data);
+            const response = await API.get('/users/profile');
             return response.data;
         } catch (error) {
             console.error('Error fetching user profile:', error);
-            if (error.response?.status === 401) {
-                logout();
-            }
             throw error;
         }
     };
 
     const login = async (userData, authToken) => {
-        console.log('Logging in user:', userData);
+        console.log('Login function called, storing token...');
+
+        // Store token in localStorage
         localStorage.setItem('token', authToken);
+        console.log('Token stored in localStorage');
+
+        // Update state
         setToken(authToken);
         setUser(userData);
-        API.defaults.headers.Authorization = `Bearer ${authToken}`;
 
-        // Check if user is admin and redirect to dashboard
+        // Set API headers
+        API.defaults.headers.Authorization = `Bearer ${authToken}`;
+        console.log('Authorization header set');
+
+        // Check if user is admin and redirect
         if (userData.role === 'admin') {
             console.log('User is admin, redirecting to dashboard...');
             window.location.href = '/admin/dashboard';
-        } else {
-            console.log('Regular user, no redirect needed');
         }
     };
 
     const logout = () => {
-        console.log('Logging out...');
+        console.log('Logout function called');
+
+        // Remove token from localStorage
         localStorage.removeItem('token');
+        console.log('Token removed from localStorage');
+
+        // Clear state
         setToken(null);
         setUser(null);
+
+        // Remove from API headers
         delete API.defaults.headers.Authorization;
+        console.log('Authorization header removed');
     };
 
     const value = {
@@ -91,8 +116,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         isAuthenticated: !!user && !!token,
-        isAdmin: user?.role === 'admin',
-        refreshUser: fetchUserProfile
+        isAdmin: user?.role === 'admin'
     };
 
     return (

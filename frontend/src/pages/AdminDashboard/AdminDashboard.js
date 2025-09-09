@@ -10,7 +10,9 @@ import {
     Select,
     MenuItem,
     FormControl,
-    InputLabel
+    InputLabel,
+    Button, // Add Button import
+    CircularProgress // Add CircularProgress import
 } from '@mui/material';
 import {
     TrendingUp,
@@ -34,6 +36,7 @@ import {
     Legend,
 } from 'chart.js';
 import API from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext'; // Add AuthContext import
 
 ChartJS.register(
     CategoryScale,
@@ -78,34 +81,51 @@ const StatCard = ({ title, value, icon, color }) => (
 );
 
 const AdminDashboard = () => {
+    const { user, isAdmin } = useAuth(); // Get auth info
     const [dashboardData, setDashboardData] = useState(null);
     const [contentStats, setContentStats] = useState(null);
     const [period, setPeriod] = useState('7days');
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchDashboardData();
         fetchContentStats();
     }, [period]);
 
+    // Check if user is admin
+    if (!isAdmin) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+                <Typography variant="h6" color="error">
+                    Access denied. Admin privileges required.
+                </Typography>
+            </Box>
+        );
+    }
+
     const fetchDashboardData = async () => {
         try {
+            setError(null);
             const response = await API.get('/admin/analytics/dashboard');
             setDashboardData(response.data);
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
+            setError('Failed to load dashboard data');
         }
     };
 
     const fetchContentStats = async () => {
         try {
+            setError(null);
             const response = await API.get('/admin/analytics/content-stats', {
                 params: { period }
             });
             setContentStats(response.data);
-            setLoading(false);
         } catch (error) {
             console.error('Error fetching content stats:', error);
+            setError('Failed to load content statistics');
+        } finally {
             setLoading(false);
         }
     };
@@ -171,10 +191,33 @@ const AdminDashboard = () => {
         ],
     };
 
+    if (error) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh" flexDirection="column">
+                <Typography color="error" variant="h6" gutterBottom>
+                    {error}
+                </Typography>
+                <Button
+                    variant="contained"
+                    onClick={() => {
+                        setLoading(true);
+                        setError(null);
+                        fetchDashboardData();
+                        fetchContentStats();
+                    }}
+                    sx={{ mt: 2 }}
+                >
+                    Retry
+                </Button>
+            </Box>
+        );
+    }
+
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-                <Typography>Loading dashboard data...</Typography>
+                <CircularProgress />
+                <Typography sx={{ ml: 2 }}>Loading dashboard data...</Typography>
             </Box>
         );
     }
