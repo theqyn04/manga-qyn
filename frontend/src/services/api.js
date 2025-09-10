@@ -243,6 +243,41 @@ export const activityAPI = {
     getUserActivities: (userId, params) => API.get(`/activities/user/${userId}`, { params }),
 };
 
+export const uploadAPI = {
+    // Upload methods
+    uploadCover: (formData, config) => API.post('/upload/cover', formData, {
+        ...config,
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+
+    uploadPage: (formData, config) => API.post('/upload/page', formData, {
+        ...config,
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+
+    uploadPages: (formData, config) => API.post('/upload/pages', formData, {
+        ...config,
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+
+    uploadChapter: (formData, config) => API.post('/upload/chapter', formData, {
+        ...config,
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+
+    deleteImage: (publicId) => API.delete(`/upload/${publicId}`),
+
+    getUploadLimits: () => API.get('/upload/limits'),
+
+    getUploadHistory: () => API.get('/upload/history'),
+
+    getUploadStats: () => API.get('/upload/stats'),
+
+    retryUpload: (uploadId) => API.post(`/upload/${uploadId}/retry`),
+
+    deleteUploadRecord: (uploadId) => API.delete(`/upload/history/${uploadId}`)
+};
+
 // Utility function for Cloudinary images
 export const getCloudinaryImage = (url, options = {}) => {
     if (!url || !url.includes('cloudinary.com')) return url;

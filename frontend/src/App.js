@@ -22,6 +22,7 @@ import LoginPage from './pages/LoginPage/LoginPage';
 import DebugInfo from './components/Debug/DebugInfo';
 import PublicRoute from './components/PublicRoute/PublicRoute';
 import AuthInitializer from './components/Auth/AuthInitializer';
+import UploadPage from './pages/UploadPage/UploadPage';
 import './App.css';
 
 function App() {
@@ -65,6 +66,7 @@ function App() {
                                     </AdminRoute>
                                 }
                             />
+                            <Route path="/upload" element={<UploadPage />} />
                         </Routes>
                     </main>
                     {/* Toast Container for notifications */}

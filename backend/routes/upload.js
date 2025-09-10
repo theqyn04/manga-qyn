@@ -1,3 +1,4 @@
+// routes/upload.js
 const express = require('express');
 const { uploadCover, uploadPage, cloudinary } = require('../config/cloudinary');
 const router = express.Router();
