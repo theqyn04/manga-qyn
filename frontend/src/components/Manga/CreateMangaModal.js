@@ -1,6 +1,7 @@
 // src/components/Manga/CreateMangaModal.js
-import React, { useState } from 'react';
-import { mangaAPI } from '../../services/api';
+import React, { useState, useRef } from 'react';
+import axios from 'axios';
+import { mangaAPI, uploadAPI } from '../../services/api';
 import './CreateMangaModal.css';
 
 const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
@@ -13,8 +14,13 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
         status: 'ongoing'
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploadingCover, setIsUploadingCover] = useState(false);
+    const [coverFile, setCoverFile] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
+
+    const fileInputRef = useRef(null);
 
     const categoriesOptions = [
         'Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror',
@@ -42,6 +48,78 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
         });
     };
 
+    const handleCoverFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!allowedTypes.includes(file.type)) {
+            setError('Chỉ chấp nhận file JPG, PNG, WebP');
+            return;
+        }
+
+        if (file.size > maxSize) {
+            setError('File quá lớn. Kích thước tối đa: 5MB');
+            return;
+        }
+
+        setCoverFile(file);
+        setError('');
+        setFormData(prev => ({ ...prev, coverImage: '' })); // Reset URL nếu có
+    };
+
+    // src/components/Manga/CreateMangaModal.js
+    const uploadCoverImage = async () => {
+        if (!coverFile) return null;
+
+        setIsUploadingCover(true);
+        setUploadProgress(0);
+        setError('');
+
+        try {
+            const formData = new FormData();
+            formData.append('cover', coverFile);
+
+            console.log('Uploading file:', coverFile.name, coverFile.type, coverFile.size);
+
+            // Sử dụng axios với config đúng
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/upload/cover`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                    onUploadProgress: (progressEvent) => {
+                        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percent);
+                    }
+                }
+            );
+
+            console.log('Upload successful:', response.data);
+            return response.data.imageUrl;
+
+        } catch (err) {
+            console.error('Upload cover error:', err);
+
+            let errorMessage = 'Upload ảnh bìa thất bại';
+            if (err.response?.data?.error) {
+                errorMessage = err.response.data.error;
+            }
+
+            setError(errorMessage);
+            return null;
+        } finally {
+            setIsUploadingCover(false);
+            setUploadProgress(0);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -55,17 +133,47 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
             return;
         }
 
-        if (!formData.coverImage.trim()) {
-            setError('Ảnh bìa không được để trống');
+        // Nếu có file ảnh được chọn, upload nó trước
+        let coverImageUrl = formData.coverImage;
+
+        if (coverFile) {
+            coverImageUrl = await uploadCoverImage();
+            if (!coverImageUrl) {
+                return; // Dừng nếu upload thất bại
+            }
+        }
+
+        if (!coverImageUrl.trim()) {
+            setError('Vui lòng upload ảnh bìa hoặc nhập URL ảnh bìa');
             return;
         }
 
         setIsSubmitting(true);
         setError('');
-        setSuccess('');
 
         try {
-            const response = await mangaAPI.createManga(formData);
+            // Upload cover image first if file is selected
+            let coverImageUrl = formData.coverImage;
+
+            if (coverFile) {
+                coverImageUrl = await uploadCoverImage();
+                if (!coverImageUrl) {
+                    return; // Stop if upload failed
+                }
+            }
+
+            if (!coverImageUrl.trim()) {
+                setError('Vui lòng upload ảnh bìa hoặc nhập URL ảnh bìa');
+                return;
+            }
+
+            // Create manga with the uploaded image URL
+            const mangaData = {
+                ...formData,
+                coverImage: coverImageUrl
+            };
+
+            const response = await mangaAPI.createManga(mangaData);
 
             setSuccess('Tạo truyện mới thành công!');
             onSuccess?.(response.data);
@@ -76,16 +184,16 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
 
         } catch (err) {
             console.error('Create manga error:', err);
-
-            if (err.response?.data?.message) {
-                setError(err.response.data.message);
-            } else if (err.response?.data?.errors) {
-                setError(err.response.data.errors.join(', '));
-            } else {
-                setError('Tạo truyện thất bại. Vui lòng thử lại.');
-            }
+            setError(err.response?.data?.message || 'Tạo truyện thất bại');
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleRemoveCover = () => {
+        setCoverFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     };
 
@@ -98,9 +206,12 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
             categories: [],
             status: 'ongoing'
         });
+        setCoverFile(null);
         setError('');
         setSuccess('');
         setIsSubmitting(false);
+        setIsUploadingCover(false);
+        setUploadProgress(0);
         onClose();
     };
 
@@ -158,20 +269,85 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
                             />
                         </div>
 
-                        {/* Ảnh bìa */}
+                        {/* Ảnh bìa - Upload */}
                         <div className="form-group">
-                            <label htmlFor="coverImage">URL Ảnh bìa *</label>
-                            <input
-                                type="url"
-                                id="coverImage"
-                                name="coverImage"
-                                value={formData.coverImage}
-                                onChange={handleInputChange}
-                                placeholder="https://example.com/cover.jpg"
-                                disabled={isSubmitting}
-                                required
-                            />
-                            <small>Dán URL ảnh bìa từ Cloudinary hoặc hosting khác</small>
+                            <label>Ảnh bìa *</label>
+
+                            {/* Upload file */}
+                            <div className="cover-upload-section">
+                                {!coverFile ? (
+                                    <div className="cover-upload-area">
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/jpeg, image/png, image/webp"
+                                            onChange={handleCoverFileSelect}
+                                            style={{ display: 'none' }}
+                                            disabled={isUploadingCover || isSubmitting}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="upload-btn"
+                                            onClick={() => fileInputRef.current?.click()}
+                                            disabled={isUploadingCover || isSubmitting}
+                                        >
+                                            📁 Chọn ảnh từ máy tính
+                                        </button>
+                                        <small>Hoặc nhập URL bên dưới</small>
+                                    </div>
+                                ) : (
+                                    <div className="cover-preview">
+                                        <div className="preview-content">
+                                            <img
+                                                src={URL.createObjectURL(coverFile)}
+                                                alt="Preview"
+                                                className="cover-preview-image"
+                                            />
+                                            <div className="preview-info">
+                                                <span className="file-name">{coverFile.name}</span>
+                                                <span className="file-size">
+                                                    ({(coverFile.size / 1024 / 1024).toFixed(2)} MB)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="remove-cover-btn"
+                                            onClick={handleRemoveCover}
+                                            disabled={isUploadingCover}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Progress bar */}
+                                {isUploadingCover && (
+                                    <div className="upload-progress">
+                                        <div className="progress-bar">
+                                            <div
+                                                className="progress-fill"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            ></div>
+                                        </div>
+                                        <span className="progress-text">{uploadProgress}%</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* URL input (fallback) */}
+                            <div className="url-input-section">
+                                <label htmlFor="coverImage">Hoặc nhập URL ảnh bìa</label>
+                                <input
+                                    type="url"
+                                    id="coverImage"
+                                    name="coverImage"
+                                    value={formData.coverImage}
+                                    onChange={handleInputChange}
+                                    placeholder="https://example.com/cover.jpg"
+                                    disabled={isSubmitting || !!coverFile}
+                                />
+                            </div>
                         </div>
 
                         {/* Trạng thái */}
@@ -219,14 +395,14 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
                             type="button"
                             className="btn-cancel"
                             onClick={handleClose}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isUploadingCover}
                         >
                             Hủy
                         </button>
                         <button
                             type="submit"
                             className="btn-submit"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isUploadingCover}
                         >
                             {isSubmitting ? 'Đang tạo...' : 'Tạo Truyện'}
                         </button>

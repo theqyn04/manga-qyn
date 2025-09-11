@@ -2,21 +2,68 @@
 const express = require('express');
 const { uploadCover, uploadPage, cloudinary } = require('../config/cloudinary');
 const router = express.Router();
+const multer = require('multer');
+
+// Middleware debug để xem request
+const debugUpload = (req, res, next) => {
+    console.log('=== UPLOAD DEBUG ===');
+    console.log('Headers:', req.headers);
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Has body:', !!req.body);
+    console.log('Has file:', !!req.file);
+    console.log('Files:', req.files);
+    console.log('Body keys:', Object.keys(req.body));
+    next();
+};
 
 // Upload ảnh bìa
-router.post('/cover', uploadCover.single('cover'), async (req, res) => {
+router.post('/cover', debugUpload, uploadCover.single('cover'), async (req, res) => {
     try {
+        console.log('=== AFTER UPLOAD ===');
+        console.log('File received:', req.file);
+        console.log('Body after upload:', req.body);
+
         if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
+            console.log('No file in req.file');
+            // Kiểm tra xem file có trong body không
+            if (req.body.cover) {
+                console.log('But found cover in body:', typeof req.body.cover);
+            }
+            return res.status(400).json({ 
+                success: false,
+                error: 'No file uploaded - req.file is null'
+            });
         }
 
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!allowedTypes.includes(req.file.mimetype)) {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Chỉ chấp nhận file JPG, PNG, WebP' 
+            });
+        }
+
+        console.log('File uploaded successfully:', {
+            originalname: req.file.originalname,
+            size: req.file.size,
+            mimetype: req.file.mimetype,
+            cloudinaryUrl: req.file.path
+        });
+
         res.status(200).json({
-            message: 'Cover uploaded successfully',
+            success: true,
+            message: 'Upload ảnh bìa thành công',
             imageUrl: req.file.path,
             publicId: req.file.filename
         });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Upload cover error:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Lỗi server khi upload ảnh bìa: ' + error.message 
+        });
     }
 });
 

@@ -245,10 +245,16 @@ export const activityAPI = {
 
 export const uploadAPI = {
     // Upload methods
-    uploadCover: (formData, config) => API.post('/upload/cover', formData, {
-        ...config,
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+    uploadCover: (formData, config) => {
+        return axios.post('/upload/cover', formData, {
+            ...config,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                ...config?.headers
+            },
+            withCredentials: true
+        });
+    },
 
     uploadPage: (formData, config) => API.post('/upload/page', formData, {
         ...config,
