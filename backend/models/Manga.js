@@ -1,4 +1,3 @@
-//Models/Manga.js
 const mongoose = require('mongoose');
 
 const pageSchema = new mongoose.Schema({
@@ -16,6 +15,7 @@ const chapterSchema = new mongoose.Schema({
 
 const mangaSchema = new mongoose.Schema({
     title: { type: String, required: true },
+    japaneseTitle: { type: String }, // Thêm trường tên tiếng Nhật
     author: { type: String, required: true },
     description: { type: String },
     coverImage: { type: String, required: true },

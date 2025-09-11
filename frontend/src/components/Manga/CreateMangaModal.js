@@ -1,4 +1,3 @@
-// src/components/Manga/CreateMangaModal.js
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { mangaAPI, uploadAPI } from '../../services/api';
@@ -7,6 +6,7 @@ import './CreateMangaModal.css';
 const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
         title: '',
+        japaneseTitle: '', // Thêm trường tên tiếng Nhật
         author: '',
         description: '',
         coverImage: '',
@@ -23,9 +23,21 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
     const fileInputRef = useRef(null);
 
     const categoriesOptions = [
-        'Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror',
-        'Romance', 'Sci-Fi', 'Slice of Life', 'Supernatural', 'Mystery',
-        'Sports', 'Isekai', 'Shounen', 'Shoujo', 'Seinen', 'Josei'
+        '4-Koma', 'Action', 'Adaptation', 'Adventure', 'Aliens', 'Animals',
+        'Anthology', 'Award Winning', 'Boys Love', 'Comedy', 'Cooking',
+        'Crime', 'Crossdressing', 'Delinquents', 'Demons', 'Doujinshi',
+        'Drama', 'Fan Colored', 'Fantasy', 'Full Color', 'GenderSwap',
+        'Ghosts', 'Girls Love', 'Gore', 'Harem', 'Historical', 'Horror',
+        'Incest', 'Isekai', 'Long Strip', 'Loli', 'Mafia', 'Magic',
+        'Magical Girls', 'Martial Arts', 'Mecha', 'Medical', 'Military',
+        'Monster Girls', 'Monsters', 'Music', 'Mystery', 'Ninja',
+        'Office Workers', 'Official Colored', 'Oneshot', 'Philosophical',
+        'Police', 'Post-Apocalyptic', 'Psychological', 'Reincarnation',
+        'Reverse Harem', 'Romance', 'Samurai', 'School Life', 'Sci-Fi',
+        'Self-Published', 'Sexual Violence', 'Shota', 'Slice of Life',
+        'Sports', 'Superhero', 'Supernatural', 'Survival', 'Thriller',
+        'Time Travel', 'Traditional Games', 'Vampires', 'Video Games',
+        'Villainess', 'Virtual Reality', 'Web Comic', 'Wuxia', 'Zombies'
     ];
 
     if (!isOpen) return null;
@@ -43,7 +55,6 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
             const categories = prev.categories.includes(category)
                 ? prev.categories.filter(cat => cat !== category)
                 : [...prev.categories, category];
-
             return { ...prev, categories };
         });
     };
@@ -52,9 +63,8 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Validate file
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxSize = 5 * 1024 * 1024;
 
         if (!allowedTypes.includes(file.type)) {
             setError('Chỉ chấp nhận file JPG, PNG, WebP');
@@ -68,10 +78,9 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
 
         setCoverFile(file);
         setError('');
-        setFormData(prev => ({ ...prev, coverImage: '' })); // Reset URL nếu có
+        setFormData(prev => ({ ...prev, coverImage: '' }));
     };
 
-    // src/components/Manga/CreateMangaModal.js
     const uploadCoverImage = async () => {
         if (!coverFile) return null;
 
@@ -83,9 +92,6 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
             const formData = new FormData();
             formData.append('cover', coverFile);
 
-            console.log('Uploading file:', coverFile.name, coverFile.type, coverFile.size);
-
-            // Sử dụng axios với config đúng
             const response = await axios.post(
                 `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/upload/cover`,
                 formData,
@@ -101,17 +107,13 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
                 }
             );
 
-            console.log('Upload successful:', response.data);
             return response.data.imageUrl;
 
         } catch (err) {
-            console.error('Upload cover error:', err);
-
             let errorMessage = 'Upload ảnh bìa thất bại';
             if (err.response?.data?.error) {
                 errorMessage = err.response.data.error;
             }
-
             setError(errorMessage);
             return null;
         } finally {
@@ -133,14 +135,11 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
             return;
         }
 
-        // Nếu có file ảnh được chọn, upload nó trước
         let coverImageUrl = formData.coverImage;
 
         if (coverFile) {
             coverImageUrl = await uploadCoverImage();
-            if (!coverImageUrl) {
-                return; // Dừng nếu upload thất bại
-            }
+            if (!coverImageUrl) return;
         }
 
         if (!coverImageUrl.trim()) {
@@ -152,29 +151,12 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
         setError('');
 
         try {
-            // Upload cover image first if file is selected
-            let coverImageUrl = formData.coverImage;
-
-            if (coverFile) {
-                coverImageUrl = await uploadCoverImage();
-                if (!coverImageUrl) {
-                    return; // Stop if upload failed
-                }
-            }
-
-            if (!coverImageUrl.trim()) {
-                setError('Vui lòng upload ảnh bìa hoặc nhập URL ảnh bìa');
-                return;
-            }
-
-            // Create manga with the uploaded image URL
             const mangaData = {
                 ...formData,
                 coverImage: coverImageUrl
             };
 
             const response = await mangaAPI.createManga(mangaData);
-
             setSuccess('Tạo truyện mới thành công!');
             onSuccess?.(response.data);
 
@@ -183,7 +165,6 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
             }, 2000);
 
         } catch (err) {
-            console.error('Create manga error:', err);
             setError(err.response?.data?.message || 'Tạo truyện thất bại');
         } finally {
             setIsSubmitting(false);
@@ -200,6 +181,7 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
     const handleClose = () => {
         setFormData({
             title: '',
+            japaneseTitle: '',
             author: '',
             description: '',
             coverImage: '',
@@ -240,6 +222,20 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
                             />
                         </div>
 
+                        {/* Tên tiếng Nhật */}
+                        <div className="form-group">
+                            <label htmlFor="japaneseTitle">Tên tiếng Nhật</label>
+                            <input
+                                type="text"
+                                id="japaneseTitle"
+                                name="japaneseTitle"
+                                value={formData.japaneseTitle}
+                                onChange={handleInputChange}
+                                placeholder="Nhập tên tiếng Nhật (nếu có)"
+                                disabled={isSubmitting}
+                            />
+                        </div>
+
                         {/* Tác giả */}
                         <div className="form-group">
                             <label htmlFor="author">Tác giả *</label>
@@ -269,11 +265,9 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
                             />
                         </div>
 
-                        {/* Ảnh bìa - Upload */}
+                        {/* Ảnh bìa */}
                         <div className="form-group">
                             <label>Ảnh bìa *</label>
-
-                            {/* Upload file */}
                             <div className="cover-upload-section">
                                 {!coverFile ? (
                                     <div className="cover-upload-area">
@@ -321,7 +315,6 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
                                     </div>
                                 )}
 
-                                {/* Progress bar */}
                                 {isUploadingCover && (
                                     <div className="upload-progress">
                                         <div className="progress-bar">
@@ -335,7 +328,6 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
                                 )}
                             </div>
 
-                            {/* URL input (fallback) */}
                             <div className="url-input-section">
                                 <label htmlFor="coverImage">Hoặc nhập URL ảnh bìa</label>
                                 <input
@@ -385,7 +377,6 @@ const CreateMangaModal = ({ isOpen, onClose, onSuccess }) => {
                             </div>
                         </div>
 
-                        {/* Messages */}
                         {error && <div className="error-message">{error}</div>}
                         {success && <div className="success-message">{success}</div>}
                     </div>

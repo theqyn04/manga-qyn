@@ -192,6 +192,7 @@ router.get('/search/:keyword', async (req, res) => {
         const mangas = await Manga.find({
             $or: [
                 { title: { $regex: req.params.keyword, $options: 'i' } },
+                { japaneseTitle: { $regex: req.params.keyword, $options: 'i' } }, // Thêm dòng này
                 { author: { $regex: req.params.keyword, $options: 'i' } },
                 { description: { $regex: req.params.keyword, $options: 'i' } }
             ]
@@ -204,6 +205,7 @@ router.get('/search/:keyword', async (req, res) => {
         const total = await Manga.countDocuments({
             $or: [
                 { title: { $regex: req.params.keyword, $options: 'i' } },
+                { japaneseTitle: { $regex: req.params.keyword, $options: 'i' } }, // Thêm dòng này
                 { author: { $regex: req.params.keyword, $options: 'i' } },
                 { description: { $regex: req.params.keyword, $options: 'i' } }
             ]
@@ -401,6 +403,7 @@ router.post('/', async (req, res) => {
     try {
         const manga = new Manga({
             title: req.body.title,
+            japaneseTitle: req.body.japaneseTitle, // Thêm dòng này
             author: req.body.author,
             description: req.body.description,
             coverImage: req.body.coverImage,
@@ -425,6 +428,7 @@ router.put('/:id', async (req, res) => {
 
         // Cập nhật các trường
         if (req.body.title) manga.title = req.body.title;
+        if (req.body.japaneseTitle !== undefined) manga.japaneseTitle = req.body.japaneseTitle; // Thêm dòng này
         if (req.body.author) manga.author = req.body.author;
         if (req.body.description) manga.description = req.body.description;
         if (req.body.coverImage) manga.coverImage = req.body.coverImage;
