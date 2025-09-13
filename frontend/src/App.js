@@ -23,6 +23,7 @@ import DebugInfo from './components/Debug/DebugInfo';
 import PublicRoute from './components/PublicRoute/PublicRoute';
 import AuthInitializer from './components/Auth/AuthInitializer';
 import UploadPage from './pages/UploadPage/UploadPage';
+import AdminMangaPage from './pages/AdminMangaPage/AdminMangaPage';
 import './App.css';
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
                                 }
                             />
                             <Route path="/upload" element={<UploadPage />} />
+                            <Route path="/admin/manga" element={<AdminMangaPage />} />
                         </Routes>
                     </main>
                     {/* Toast Container for notifications */}

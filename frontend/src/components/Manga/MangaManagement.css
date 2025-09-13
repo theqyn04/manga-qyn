@@ -1,0 +1,419 @@
+/* Manga Management Styles */
+.manga-management {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.management-header h1 {
+    color: #fff;
+    margin: 0;
+}
+
+.btn-create-manga {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-create-manga:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.filters {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.search-box input {
+    padding: 10px 15px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #1a1a2e;
+    color: #fff;
+    width: 300px;
+}
+
+.status-filter select {
+    padding: 10px 15px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #1a1a2e;
+    color: #fff;
+}
+
+/* Manga List */
+.manga-list {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.list-header {
+    display: grid;
+    grid-template-columns: 80px 2fr 1fr 1fr 1fr 1fr;
+    gap: 15px;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Manga Item */
+.manga-item {
+    display: grid;
+    grid-template-columns: 80px 2fr 1fr 1fr 1fr 1fr;
+    gap: 15px;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.manga-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.manga-cover img {
+    width: 60px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.manga-info h4 {
+    margin: 0 0 5px 0;
+    color: #fff;
+    font-size: 16px;
+}
+
+.japanese-title {
+    color: #888;
+    font-size: 12px;
+    margin: 0 0 5px 0;
+}
+
+.author {
+    color: #aaa;
+    font-size: 14px;
+    margin: 0;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.ongoing {
+    background: #4caf50;
+    color: white;
+}
+
+.status-badge.completed {
+    background: #2196f3;
+    color: white;
+}
+
+.status-badge.hiatus {
+    background: #ff9800;
+    color: white;
+}
+
+.chapter-count,
+.views-count {
+    color: #fff;
+    font-weight: 500;
+}
+
+.manga-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-add-chapter,
+.btn-edit,
+.btn-save,
+.btn-cancel {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.btn-add-chapter {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-edit {
+    background: #2196f3;
+    color: white;
+}
+
+.btn-save {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-cancel {
+    background: #f44336;
+    color: white;
+}
+
+.btn-add-chapter:hover,
+.btn-edit:hover,
+.btn-save:hover,
+.btn-cancel:hover {
+    opacity: 0.9;
+}
+
+/* Edit Form */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.edit-form input {
+    padding: 6px 8px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #2d2d4d;
+    color: #fff;
+    font-size: 12px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.2rem;
+}
+
+.modal-form {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #fff;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #2d2d4d;
+    color: #fff;
+    font-size: 14px;
+}
+
+.upload-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.pages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.page-item {
+    position: relative;
+    border: 1px solid #333;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.page-preview img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.page-info {
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 11px;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-submit {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 5px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #667eea;
+    transition: width 0.3s ease;
+}
+
+/* Loading and Error States */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #fff;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #c3e6cb;
+}
+
+.no-mangas {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .list-header {
+        display: none;
+    }
+
+    .manga-item {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .search-box input {
+        width: 100%;
+    }
+
+    .management-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+}

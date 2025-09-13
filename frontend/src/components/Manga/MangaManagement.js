@@ -22,11 +22,27 @@ const MangaManagement = () => {
     const loadMangas = async () => {
         try {
             setLoading(true);
-            const data = await mangaService.getAllMangas();
-            setMangas(data);
+            setError('');
+
+            // Gọi API với các tham số nếu cần
+            const data = await mangaService.getAllMangas({
+                search: searchTerm,
+                status: filterStatus !== 'all' ? filterStatus : undefined
+            });
+
+            // Xử lý response - API có thể trả về { mangas: [...] } hoặc trực tiếp mảng
+            if (data && data.mangas) {
+                setMangas(data.mangas);
+            } else if (Array.isArray(data)) {
+                setMangas(data);
+            } else {
+                setMangas([]);
+            }
+
         } catch (err) {
-            setError('Lỗi khi tải danh sách truyện');
             console.error('Load mangas error:', err);
+            setError('Lỗi khi tải danh sách truyện');
+            setMangas([]);
         } finally {
             setLoading(false);
         }

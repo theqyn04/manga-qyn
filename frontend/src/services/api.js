@@ -60,6 +60,20 @@ export const mangaAPI = {
     // Lấy danh sách manga với phân trang và filter
     getMangas: (params = {}) => API.get('/mangas', { params }),
 
+    // Get all mangas với pagination và filter
+    getAllMangas: (params = {}) => {
+        const queryParams = new URLSearchParams();
+
+        if (params.page) queryParams.append('page', params.page);
+        if (params.limit) queryParams.append('limit', params.limit);
+        if (params.search) queryParams.append('search', params.search);
+        if (params.category) queryParams.append('category', params.category);
+        if (params.status) queryParams.append('status', params.status);
+        if (params.sort) queryParams.append('sort', params.sort);
+
+        return API.get(`/api/manga?${queryParams.toString()}`);
+    },
+
     // Lấy thông tin chi tiết manga
     getMangaById: (id) => API.get(`/mangas/${id}`),
 
